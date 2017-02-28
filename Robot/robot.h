@@ -15,24 +15,25 @@
 #ifndef ROBOT_H
 #define ROBOT_H
 
-//Function Declaration
+#include "robotClass.h"
 
-//Defines
-#define 	SSID_HOST 		"RoboAoResgate" 	//Nome da rede wifi quando em modo host
-#define 	PASSWORD_HOST 	"aabbccddee" 		//Senha da rede
-#define 	SSID_LEN		32 					//Maximium Wireless network name length
-#define 	PASSWD_LEN 		32 					//Maximium Wireless network password length
+class Robot{ 
+	public:
+		void Robot::init(int SerialSpeed, int leftEngine, int rightEngine);
+		void Robot::initWiFi(String Network, String Password);
+		int Robot::connectWifi(String Network, String Password);
+		void Robot::statusReport();
+		void Robot::startAP(String SSID);
+		void Robot::tankDrive (int left, int right);
+		void Robot::setMode(int modeFlag);
+		void RobotClass::debug(Generic text);
 
 
-//Class Declaration
+	private:
+		String SSID = "";
+		String AP_SSID = "";
+		String PASSWD = "";
+};
 
-RobotClass robot;
-
-//Variable declaration
-
-char * SSID;
-char * PASSWORD;
-SSID =  (char) malloc(sizeof(char)*SSID_LEN); //aloca 32 caracteres para o nome da rede; malloc --> memory allocate
-PASSWORD =  (char) malloc(sizeof(char)*32); //Idem
 
 #endif /* ROBOT_H */
