@@ -13,9 +13,10 @@
 
 //------------------------------
 // ---------- Includes ----------
+#include "libInclude.h"
 
 #include "robot.h"
-#include "libInclude.h"
+
 
 //-----------------------------
 // ------- Lib Declaration
@@ -23,17 +24,20 @@
 static WiFiClient wifi;
 static ESP8266WebServer server(80);
 
-//--------------------------------------
-//---------- Variables ----------
 
-String Robot::SSID = "";
-String Robot::AP_SSID = "";
-String Robot::PASSWD = "";
-
+//-----------------------------------
+// Variable Declaration
+ 
 //-----------------------------------------------
-//------- Function Definition
+//------- Function Definition ----------------
 
-void Robot::init(int SerialSpeed, uint8_t leftEngine, uint8_t rightEngine) {
+
+
+void Robot::init(int SerialSpeed, int leftEngine, int rightEngine) {
+	// Memory allocation
+	this->SSID = (char*) malloc (SSID_LEN + 1);
+	this->PASSWD = (char*) malloc(PASSWD_LEN + 1);
+
 	//Sistem init
 	debug(F("---------------------------"));
 	debug(F("ESP8266 Init"));
@@ -43,9 +47,11 @@ void Robot::init(int SerialSpeed, uint8_t leftEngine, uint8_t rightEngine) {
 	pinMode(leftEngine, 1);
 	pinMode(rightEngine, 1);
 	debug(F("done"));
+
+
 }
 
-void Robot::initWiFi(String Network, String Password) {
+void Robot::initWiFi(char* Network, char* Password) {
 	//Wifi Startup
 	debug(F("Starting WiFi"));
 	WiFi.begin("","");
@@ -57,25 +63,25 @@ void Robot::initWiFi(String Network, String Password) {
 		//Set's up the HTTP server and starts it up
 		debug(F("Connected!"));
 		debug(F("Settting HTTP status server"));
-		server.on("/status", statusReport);
+		//server.on("/status", std::bind(&Robot::statusReport, this));
 		debug(F("Starting HTTP status server on \" /status\""));
 		server.begin();
 	}
 	else {
 		//starts Acess point
-		startAP();
+		startAP(AP_SSID);
 
 		//TODO: Encapsulate this in a function
 		debug(F("Setting HTTP setup server"));
 		debug(WiFi.softAPIP());
 		debug(F("\"/setup\""));
-		server.on("/setup");
+		//server.on("/setup",std::bind(&Robot::setWiFi),this);
 		debug(F("Starting HTTP setup server"));
 		server.begin();
 	}
 }
 
-int Robot::connectWifi(String Network, String Password) {
+int Robot::connectWifi(char* Network, char* Password) {
 	debug(F("Setting to station mode"));
 	WiFi.mode(WIFI_STA);//Set To station, aka: client mode
 	
@@ -94,9 +100,9 @@ void Robot::statusReport() {
 
 }
 
-void Robot::startAP(String SSID) {
+void Robot::startAP(char* SSID) {
 	//TODO: AP Config, and 
-	AP_SSID = SSID;
+	//AP_SSID = SSID;
 }
 
 //void Robot::StartHTTP(char)
@@ -114,16 +120,24 @@ void Robot::tankDrive (int left, int right) {
 	debug(right);
 }
 
-void Robot::setMode(uint8_t modeFlag) {
-	//TODO: Implement modechange
+void Robot::setMode(int modeFlag) {
+	//TODO: Implement modechange for remote control
 }
 
 
-//TODO: understand this
+
 template <typename Generic>
-void RobotClass::debug(Generic text) {
+void Robot::debug(Generic text) {
 	Serial.println(text);
 }
+
+void Robot::setWiFi() {
+	//TODO: Set up http setup callback
+
+
+}
+
+
 
 /*
 void RobotClass::connectWifi (String ssid, String pass) {

@@ -11,28 +11,26 @@
 
 //------------------------------
 // ---------- Includes ----------
+#include <Arduino.h>
+
+#include "libInclude.h"
+
 
 //User
 #include "robot.h"
-#include "libInclude.h"
 
 //------------------------
 //Object declaration
-static Robot robot;
 
+Robot robot;
 
 //------------------------------
 // ---------- Setup -----------
-
 void setup()
 {
 	//Hardware init
 	robot.init(SERIAL_SPEED,ENGINE_LEFT,ENGINE_RIGHT);
-	robot.initWiFi();
-
-
-	//Firmware Init
-
+	//robot.initWiFi();
 
 }
 
