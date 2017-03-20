@@ -30,7 +30,7 @@ void setup()
 {
 	//Hardware init
 	robot.init(SERIAL_SPEED,ENGINE_LEFT,ENGINE_RIGHT);
-	//robot.initWiFi();
+	robot.initWiFi();
 
 }
 

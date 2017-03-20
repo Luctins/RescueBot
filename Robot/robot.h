@@ -49,8 +49,8 @@ class Robot {
 	public:
 		//Init
 		void init(int SerialSpeed, int leftEngine, int rightEngine); 	//Main setup
-		void initWiFi(char* Network, char* Password);					//WiFi Setup, tries stored network first, then turns AP on if nothing found
-		void setWiFi();
+		void initWiFi();					//WiFi Setup, tries stored network first, then turns AP on if nothing found
+		void setWiFi(char* Network, char* Password);
 		int connectWifi(char* Network, char* Password);
 		void statusReport();
 		void startAP(char* SSID);

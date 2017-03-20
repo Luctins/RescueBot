@@ -33,7 +33,7 @@ static ESP8266WebServer server(80);
 
 
 
-void Robot::init(int SerialSpeed, int leftEngine, int rightEngine) {
+void Robot::init(int SerialSpeed, int leftEnginePin, int rightEnginePin) {
 	// Memory allocation
 	this->SSID = (char*) malloc (SSID_LEN + 1);
 	this->PASSWD = (char*) malloc(PASSWD_LEN + 1);
@@ -44,32 +44,44 @@ void Robot::init(int SerialSpeed, int leftEngine, int rightEngine) {
 	debug(F("Setting Up Pins and Serial"));
 
 	Serial.begin(SerialSpeed);
-	pinMode(leftEngine, 1);
-	pinMode(rightEngine, 1);
+	pinMode(leftEnginePin, 1);
+	pinMode(rightEnginePin, 1);
+	
 	debug(F("done"));
 
 
 }
 
-void Robot::initWiFi(char* Network, char* Password) {
+void Robot::initWiFi() {
 	//Wifi Startup
 	debug(F("Starting WiFi"));
 	WiFi.begin("","");
 	debug(F("Connecting To stored Wireless network"));
 
+	int t0 = millis(); //Connection timeout start time
+	while(!(WiFi.status() == WL_CONNECTED) && ( millis() - t0 < WIFI_TIMEOUT)) {
+		debug(F("."));
+		delay(300);
+	}
+
 	//Sets Up A acess point if unconfigured, or did not found the pre-set network
-	if (connectWifi(Network,Password) == WL_CONNECTED )
+	if (WiFi.status() == WL_CONNECTED )
 	{
 		//Set's up the HTTP server and starts it up
 		debug(F("Connected!"));
+		//TODO: output device IP to serial
 		debug(F("Settting HTTP status server"));
 		//server.on("/status", std::bind(&Robot::statusReport, this));
-		debug(F("Starting HTTP status server on \" /status\""));
+		debug(F("Starting HTTP status server on:"));
+		//TODO: output HTTP server link on serial
+
 		server.begin();
 	}
 	else {
+		debug(F("failed to Connect to Wireless Network, Starting AP"));
 		//starts Acess point
 		startAP(AP_SSID);
+		debug(F("AP started"));
 
 		//TODO: Encapsulate this in a function
 		debug(F("Setting HTTP setup server"));
@@ -81,8 +93,13 @@ void Robot::initWiFi(char* Network, char* Password) {
 	}
 }
 
-int Robot::connectWifi(char* Network, char* Password) {
+void Robot::setWiFi (char* Network, char* Password) {
+	//todo: this
+}
+
+int Robot::connectWifi (char* Network, char* Password) {
 	debug(F("Setting to station mode"));
+
 	WiFi.mode(WIFI_STA);//Set To station, aka: client mode
 	
 	int t_begin = millis(); //Time when the connection started, for timeout
@@ -130,13 +147,6 @@ template <typename Generic>
 void Robot::debug(Generic text) {
 	Serial.println(text);
 }
-
-void Robot::setWiFi() {
-	//TODO: Set up http setup callback
-
-
-}
-
 
 
 /*
