@@ -24,13 +24,14 @@
 #define 	WIFI_TIMEOUT	2000			//Timeout for connecting to wifi, in msec
  
 //Pins and Serial
-#define 	ENGINE_LEFT		9		//Left engine pin
+#define 	ENGINE_LEFT		9		//Left engine pin, 
 #define 	ENGINE_RIGHT	11		//Right engine pin
 #define 	SERIAL_SPEED	9600	//9600 bauds
 
 //Flags
 #define 	MODE_STANDBY	0	//Stand by
 #define 	MODE_REMOTE		1	//Remote controlled by other application
+#define 	MODE_AUTO		2  	//Autonomous
 
 
 //----------------------------------------------------
