@@ -32,7 +32,7 @@
 //needed for WiFiMananger
 #include <ESP8266WebServer.h>
 #include <DNSServer.h>
-#include "lib/WiFiMananger.h"
+#include "lib/WiFiManager.h"
 
 //Project Defines
 #include "robot.h"
@@ -50,7 +50,7 @@ ESP8266WebServer statusServer(80);
 class Robot {
 	public:
 		// Memory allocation
-		void Robot::init(int SerialSpeed, int leftEnginePin, int rightEnginePin) {
+		void init(int SerialSpeed, int leftEnginePin, int rightEnginePin) {
 			//Robot::SSID = (char*) malloc (SSID_LEN + 1); 	//Allocates Memory for the SSID
 			//Robot::PASSWD = (char*) malloc(PASSWD_LEN + 1); // Same as above, bu tofr the password
 
@@ -66,7 +66,7 @@ class Robot {
 			debug(F("done"));
 		}
 
-		void Robot::initWiFi() {
+		void initWiFi() {
 		//Wifi Startup
 			debug(F("Creating WiFiManager"));
 			WiFiManager wifiManager;
@@ -92,22 +92,22 @@ class Robot {
     		debug(F("Connected!"));
 
 			debug(F("Settting HTTP status server"));
+			statusServer.begin();
 			statusServer.on("/botStatus", std::bind(&Robot::statusReport, this));
 			debug(F("Starting HTTP status server on:"));
 			debug(F("<IP HERE>"));
 			//TODO: output HTTP server link on serial
-
-			server.begin();
-		
+			
 		}
 
 
-		void Robot::statusReport() {
+		void statusReport() {
+			statusServer.send(200,"text/html",botStatus);
 			//TODO: Status report via HTTP on "<IP>/status"
 
-		}
+		} 
 
-		void Robot::tankDrive (int left, int right) {
+		void tankDrive (int left, int right) {
 			//Tank type steering
 			analogWrite(ENGINE_LEFT, left);
 			analogWrite(ENGINE_RIGHT, right);
@@ -119,22 +119,23 @@ class Robot {
 			debug(right);
 		}
 
-		void Robot::setMode(int modeFlag) {
+		void setMode(int modeFlag) {
 			//TODO: Implement modechange for remote control
 		}
 
 		template <typename Generic>
-		void Robot::debug(Generic text) {
+		void debug(Generic text) {
 			Serial.println(text);
 		}
+
+		void setStatus(String status) {
+			botStatus = status;
+		}
 	private:
-	
-}
+		String botStatus = "";
 
-//------------------------
-//Object declaration
 
-Robot robot;
+} robot;
 
 //------------------------------
 // ---------- Setup -----------
@@ -143,7 +144,6 @@ void setup()
 	//Hardware init
 	robot.init(SERIAL_SPEED,ENGINE_LEFT,ENGINE_RIGHT);
 	robot.initWiFi();
-	robot.
 }
 
 
@@ -152,7 +152,8 @@ void setup()
 
 void loop()
 {
-	
+	robot.statusReport();
+
 
 }
 
