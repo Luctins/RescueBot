@@ -1,5 +1,5 @@
 
-module Wheel (wheelrad = 75, $fn = 100) {
+module wheel (wheelrad = 75, $fn = 100) {
    width = 10;  //largura da roda
     tichn = 3.5; //espesura da roda
     nrad = 8;  //numero de raios na roda
@@ -21,7 +21,7 @@ module Wheel (wheelrad = 75, $fn = 100) {
        rotate([0,0,360*i/nrad]) translate([0,-tichn/2,-7]) cube([wheelrad,tichn,width], center = false);
        }
 }
-Wheel(75);
+
 
 
         

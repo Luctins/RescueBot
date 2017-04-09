@@ -24,23 +24,18 @@
 #define 	WIFI_TIMEOUT	2000			//Timeout for connecting to wifi, in msec
  
 //Pins and Serial
-#define 	ENGINE_LEFT		9		//Left engine pin, 
-#define 	ENGINE_RIGHT	11		//Right engine pin
-#define 	SERIAL_SPEED	9600	//9600 bauds
+#define 	ENGINE_LEFT		5		//Left engine pin, D1 
+#define 	ENGINE_RIGHT	4		//Right engine pin, D2
+#define 	SERIAL_SPEED	9600	//9600 baud/s
 
 //Flags
 #define 	MODE_STANDBY	0	//Stand by
 #define 	MODE_REMOTE		1	//Remote controlled by other application
 #define 	MODE_AUTO		2  	//Autonomous
 
+//-----------------------------------------------
 
-//----------------------------------------------------
-
-
-//---------------------------------------
-// Class Predeclaration
-
-
+/*
 class Robot {
 	private:
 		template<typename Generic>
@@ -60,6 +55,6 @@ class Robot {
 		
 };
 
-//-----------------------------------------------
+*/
 
 #endif /* ROBOT_H */
