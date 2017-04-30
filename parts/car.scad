@@ -1,7 +1,9 @@
-// Arquivo Principal do carrinho
+//main car file
 
+//Car parts
 include <body.scad>
-include <wheel.scad>
+include <wheel2.scad>
+include <gear.scad>
 
 larg=110;
 espes=20;

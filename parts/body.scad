@@ -1,11 +1,13 @@
 //corpo do carrinho
 
-module body(larg=80, compr=100) {
+module body(larg=80, compr=100, ) {
     espes = 10; //10 mm de espesura no carrinho
     
-    cube([larg, compr, espe], center = true);
-    
+    minkowski() {
+        %cube([larg, compr, espes], center = true);
+        #cylinder(h=15,r=5);
+    }
 }
 
-
+body();
 
