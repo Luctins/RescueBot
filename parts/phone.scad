@@ -39,7 +39,7 @@ module phone() {
         }              
     } 
     
-    
+    rotate([0,0,180]) {
     translate([-1,0,heigth/2+tichn-17]) camera();
     hull() {
         translate([tichn/2, width/2, heigth/2]) edge_connect();
@@ -52,7 +52,7 @@ module phone() {
         translate([tichn/2,0,heigth/2]) rotate([-90,0,0]) edge(width);
         translate([tichn/2,0,-heigth/2]) rotate([90,0,0]) edge(width);
         rotate([0,0,0]) cube([tichn,width,heigth],true);
-    }
+    } }
 }
 
-phone();
+//phone();
