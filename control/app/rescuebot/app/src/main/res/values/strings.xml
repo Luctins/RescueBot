@@ -1,3 +1,12 @@
 <resources>
-    <string name="app_name">rescuebot</string>
+    <string name="app_name">RescueBot</string>
+    <string name="buttonRefresh">Atualizar</string>
+    <string name="buttonConnect">Conectar</string>
+    <string name="buttonOn">liga</string>
+    <string name="buttonOff">Desliga</string>
+    <string name="btText">DenteAzul</string>
+    <string name="btState">desligado</string>
+    <string name="buttonSelectFromList">Lista de Dispositivos Pareados</string>
+    <string name="buttonSearchDevices">Procurar Dispositvos</string>
+
 </resources>
