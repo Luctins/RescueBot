@@ -1,11 +1,9 @@
 package luctins.rescuebot;
 
-/**
- * Created by luctins on 13/05/17.
- */
-
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothSocket;
+
+//Classe para passar o socket bluetooth entre as Activities
 
 public class Share {
     private BluetoothAdapter myBluetoothAdapter;
@@ -17,7 +15,7 @@ public class Share {
 
     }
     public static Share getInstance(){
-        if(obj==null){
+        if(obj ==null){
             obj = new Share();
         }
         return obj;
@@ -31,7 +29,8 @@ public class Share {
         this.btSocket = bt;
     }
 
-    public BluetoothSocket get_socket( ){
+    public BluetoothSocket get_socket()
+    ) {
         return this.btSocket;
     }
 

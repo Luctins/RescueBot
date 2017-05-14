@@ -1,12 +1,11 @@
 <resources>
     <string name="app_name">RescueBot</string>
-    <string name="buttonRefresh">Atualizar</string>
-    <string name="buttonConnect">Conectar</string>
-    <string name="buttonOn">liga</string>
-    <string name="buttonOff">Desliga</string>
+    <string name="buttonRefresh">Update</string>
+    <string name="buttonConnect">Connect</string>
+    <string name="buttonOn">On</string>
+    <string name="buttonOff">Off</string>
     <string name="btText">DenteAzul</string>
-    <string name="btState">desligado</string>
-    <string name="buttonSelectFromList">Lista de Dispositivos Pareados</string>
-    <string name="buttonSearchDevices">Procurar Dispositvos</string>
+    <string name="buttonSelectFromList">Paired Devices List</string>
+    <string name="buttonSearchDevices">Scan for devices</string>
 
 </resources>

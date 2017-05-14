@@ -32,15 +32,15 @@ import java.util.UUID;
 public class mainActivity extends FragmentActivity implements AdapterView.OnItemClickListener {
 
     //variáveis Globais
-    private TextView text;
-    private static final int REQUEST_ENABLE_BT = 1;
-    private BluetoothAdapter myBluetoothAdapter;
-    private Set<BluetoothDevice> pairedDevices;
-    private ListView myListView;
-    private ArrayAdapter<String> BTArrayAdapter;
-    private BluetoothSocket btSocket = null;
-    private Button On, Off, FindBt, ShowBt;
-    private Share btdata;
+    private TextView btState; //texto de estado do bluetooth
+    private static final int REQUEST_ENABLE_BT = 1; //flag do BT
+    private BluetoothAdapter myBluetoothAdapter; //Adaptador BT
+    private Set<BluetoothDevice> pairedDevices; //Lista de dispositivos Pareados
+    private ListView myListView; //lista(visual) de dispositivos encontrados
+    private ArrayAdapter<String> BTArrayAdapter; //lista de disp encontrados
+    private BluetoothSocket btSocket = null; //socket da conexão
+    private Button On, Off, FindBt, ShowBt; //botões
+    private Share btdata; //classe para enviar socket bluetooth entre as Activities
     private static final UUID MY_UUID = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
     final int sdk = android.os.Build.VERSION.SDK_INT;
 
@@ -53,8 +53,9 @@ public class mainActivity extends FragmentActivity implements AdapterView.OnItem
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         this.requestWindowFeature(Window.FEATURE_NO_TITLE);
-        setContentView(R.layout.mainActivity);
+        setContentView(R.layout.main_activity);
 
+        //"conecta" as ListView's
         myListView = (ListView) findViewById(R.id.deviceList);
 
         //Configura botões
@@ -67,7 +68,7 @@ public class mainActivity extends FragmentActivity implements AdapterView.OnItem
         ShowBt = (Button) findViewById(R.id.buttonListDevices);
         ShowBt.setOnTouchListener(this.listener);
 
-        //buffer
+        //cria instância da classe para armazenar socket bluetooth
         btdata = Share.getInstance();
 
         //adaptador
@@ -77,8 +78,8 @@ public class mainActivity extends FragmentActivity implements AdapterView.OnItem
         BTArrayAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1);
 
         //Configura texto que informa estado do Bluetooth
-        text = (TextView) findViewById(R.id.btState);
-        text.setText((myBluetoothAdapter.isEnabled())?("Status: Enabled") :("Status: Disabled"));
+        btState = (TextView) findViewById(R.id.btState);
+        btState.setText((myBluetoothAdapter.isEnabled())?("Status: Enabled"):("Status: Disabled"));
 
         //Configura lista de disposivos bluetooth encontrados
         myListView.setAdapter(BTArrayAdapter);
@@ -93,6 +94,7 @@ public class mainActivity extends FragmentActivity implements AdapterView.OnItem
 
             Toast.makeText(getApplicationContext(),"Bluetooth turned on" ,
                     Toast.LENGTH_SHORT).show();
+            btState.setText("Status: Enabled");
         }
         else {
             Toast.makeText(getApplicationContext(),"Bluetooth is already on",
@@ -103,7 +105,7 @@ public class mainActivity extends FragmentActivity implements AdapterView.OnItem
     //Desabilita transceiver bluetooth
     public void off(View view) {
         myBluetoothAdapter.disable();
-        text.setText("Status: Disabled");
+        btState.setText("Status: Disabled");
         Toast.makeText(getApplicationContext(),"Bluetooth turned off",
                 Toast.LENGTH_SHORT).show();
     }
@@ -113,14 +115,14 @@ public class mainActivity extends FragmentActivity implements AdapterView.OnItem
         // TODO Auto-generated method stub
         if(requestCode == REQUEST_ENABLE_BT){
             if(myBluetoothAdapter.isEnabled()) {
-                text.setText("Status: Enabled");
+                btState.setText("Status: Enabled");
             } else {
-                text.setText("Status: Disabled");
+                btState.setText("Status: Disabled");
             }
         }
     }
 
-    //Função que configura recepção de dados, e ediciona o dispositivo na lista de dispositivos
+    //Função que configura recepção de dados, e adiciona o dispositivo na lista de dispositivos
     final BroadcastReceiver bReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -171,29 +173,23 @@ public class mainActivity extends FragmentActivity implements AdapterView.OnItem
             }
         }
 
-        //passa socket para classe singleton
+        //passa socket para classe Share
         btdata.store_socket(btSocket);
 
-        Intent it = new Intent(this, controlActivity.class);
-        startActivity(it);
+        Intent control = new Intent(this, controlActivity.class);
+        startActivity(control);
 
     }
 
-
-
-
-
-    //Lista dispositivos já apreados, mostrando-os na listView
-
+    //Lista dispositivos já pareados, armazenando-os no pairedDevices
     public void list(View view){
 
         pairedDevices = myBluetoothAdapter.getBondedDevices();
 
-
         for(BluetoothDevice device : pairedDevices)
             BTArrayAdapter.add(device.getName()+ "\n" + device.getAddress());
 
-        Toast.makeText(getApplicationContext(),"Show Paired Devices",
+        Toast.makeText(getApplicationContext(),"Show'n Paired Devices",
                 Toast.LENGTH_SHORT).show();
 
     }
@@ -247,10 +243,10 @@ public class mainActivity extends FragmentActivity implements AdapterView.OnItem
                     case R.id.buttonOff:
                         off(view);
                         break;
-                    case R.id.buttonFind:
+                    case R.id.buttonSearchDevices:
                         find(view);
                         break;
-                    case R.id.buttonShow:
+                    case R.id.buttonListDevices:
                         list(view);
                         break;
                 }
@@ -289,4 +285,3 @@ public class mainActivity extends FragmentActivity implements AdapterView.OnItem
 
 }
 
-    public
