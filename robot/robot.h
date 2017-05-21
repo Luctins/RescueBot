@@ -3,9 +3,7 @@
 	
 	Header Containing:
 		Defines,
-		Macros,
-		Class Predeclarations ,
-		and functions definitions; 
+		Macros
 	
 	Created By: Lucas Martins Mendes
 	Date: 18/02/2017 12:45
@@ -17,44 +15,25 @@
 
 //Defines---------------
 
-//WiFi
-#define 	AP_SSID			"RoboAoResgate"	//Wireless Network Name for local AP
-#define 	SSID_LEN		16 				//Maximium Wireless network name length
-#define 	PASSWD_LEN 		16 				//Maximium Wireless network password length
-#define 	WIFI_TIMEOUT	2000			//Timeout for connecting to wifi, in msec
- 
+#define 	BOARD_MODEL 	"Arduino Uno"
+
 //Pins and Serial
-#define 	ENGINE_LEFT		5		//Left engine pin, D1 
-#define 	ENGINE_RIGHT	4		//Right engine pin, D2
+#define 	ENG_RGT_1		3
+#define 	ENG_RGT_2		5
+
+#define 	ENG_LFT_1		9
+#define 	ENG_LFT_2		11
+
+//#define 	LED_COMM_PIN	2
+
+
 #define 	SERIAL_SPEED	9600	//9600 baud/s
 
 //Flags
-#define 	MODE_STANDBY	0	//Stand by
-#define 	MODE_REMOTE		1	//Remote controlled by other application
-#define 	MODE_AUTO		2  	//Autonomous
-
+#define 	MODE_IDLE		0	//Stand by, sensors disabled/not beiyng read
+#define 	MODE_AUTO		1  	//Autonomous
+//#define 	MODE_REMOTE		2	//Remote controlled by other application
 //-----------------------------------------------
 
-/*
-class Robot {
-	private:
-		template<typename Generic>
-		void debug(Generic text); 	//Reports What the program is doing via the serial
-		char *SSID; 				//SSID storage pointer
-		char *PASSWD;				//PASSWD storage pointer
-	public:
-		//Init
-		void init(int SerialSpeed, int leftEngine, int rightEngine); 	//Main setup
-		void initWiFi();					//WiFi Setup, tries stored network first, then turns AP on if nothing found
-		void setWiFi(char* Network, char* Password);
-		int connectWifi(char* Network, char* Password);
-		void statusReport();
-		void startAP(char* SSID);
-		void tankDrive (int left, int right);
-		void setMode(int modeFlag);
-		
-};
-
-*/
 
 #endif /* ROBOT_H */
