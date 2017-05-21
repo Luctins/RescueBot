@@ -1,3 +1,0 @@
- Notas Para desenvolvimento do Projeto.
- -Node Suporta até 3 PWM's simultaneos em qualquer pino.
- -
