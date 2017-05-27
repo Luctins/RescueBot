@@ -44,17 +44,22 @@ class Robot {
 
 		void tankDrive (int left, int right) {
 			//Tank type steering
-		
+			//negative values go backwards
+			//Does nothing if idle
 
-			debug(F("Left"));
-			debug(left);
-
-			debug(F("Right"));
-			debug(right);
+			if(mode == MODE_AUTO) {
+				setEngine(left, ENG_LFT_1, ENG_LFT_2);
+				setEngine(right, ENG_RGT_1, ENG_RGT_2);
+			}
+			else if(mode == MODE_IDLE);
+			debug(F("tried to move when idle"));
 		}
 
+
 		void setMode(uint8_t modeFlag) {
-			//TODO: Implement modechange for remote control
+			mode = modeFlag;
+			debug(F("mode set to:"));
+			debug(modeFlag);
 		}
 
 		template <typename Generic>
@@ -65,6 +70,22 @@ class Robot {
 		uint8_t mode;
 	private:
 
+		void setEngine(int value, uint8_t engine1, uint8_t engine2) {
+			if(value>0) {
+				analogWrite(engine1, value);
+				analogWrite(engine2, 0);
+			}
+			else if(value<0) {
+				digitalWrite(engine1, 0);
+				digitalWrite(engine2, value);
+			}
+			else {
+				digitalWrite(engine1, 0);
+				digitalWrite(engine2, 0);
+			}
+		}
+
+
 } robot;
 
 //------------------------------
@@ -73,6 +94,8 @@ void setup()
 {
 	//Hardware init
 	robot.init();
+	robot.setMode(MODE_IDLE);
+
 }
 
 
@@ -81,6 +104,7 @@ void setup()
 
 void loop()
 {
+//TODO: Bot start switch with debounce
 
 
 }
