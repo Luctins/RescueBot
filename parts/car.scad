@@ -7,28 +7,28 @@ include <wheel.scad>
 include <engine.scad>
 include <engine_connector.scad>
 
-translate([35,-35,20]) rotate([0,0,90]) color("lightBlue") import ("Arduino_Model/files/Arduino.stl");
+
 
 //Body vars
 body_length = 100;
 body_width = 75;
-body_h = eng_rad*2+10;
+body_h = eng_rad*2+15;
 eng_fit = 0.5;
+body_wall_tichn = 5;
 
-body(body_width,body_length,body_h,eng_rad+eng_fit);
+body(body_width,body_length,body_h,eng_rad+eng_fit,eng_axle_rad, body_wall_tichn);
+
+//Arduino
+%translate([35,-35,body_h/2]) rotate([0,0,90]) /*color("lightBlue")*/ import ("Arduino_Model/files/Arduino.stl");
 
 //Engine
-translate([-(body_length/2-eng_rad-5-eng_fit),-body_width/2,-3])rotate([90])engine();
-translate([-(body_length/2-eng_rad-5-eng_fit),body_width/2,-3]) rotate([-90]) engine();
-
-//engine Connector
-conn_len = 25;
-#translate([-(body_length/2-eng_rad-5-eng_fit),-(body_width/2+eng_h/2+eng_axle_h+9),-3])rotate([90]) eng_connector(1,1.5);
-#translate([-(body_length/2-eng_rad-5-eng_fit),(body_width/2+eng_h/2+eng_axle_h+9),-3]) rotate([90]) eng_connector(1,1.5);
+%translate([-(0),-body_width/2,-3]) rotate([90])engine();
+%translate([-(0),body_width/2,-3]) rotate([-90]) engine();
 
 //Wheel
-translate([-(body_length/2-eng_rad-5-eng_fit),-(body_width/2+eng_h+eng_axle_h+conn_len/2),-3])rotate([90]) wheel(25,3);
-%translate([-(body_length/2-eng_rad-5-eng_fit),(body_width/2+eng_h+eng_axle_h+conn_len/2),-3]) rotate([-90]) wheel(25,3);
+wheel_axle_rad = 1.5;
+%translate([-(4*body_length/10),(body_width/2-body_wall_tichn/2+axle_len*2),-(3*body_h/8)]) rotate([-90]) wheel(25,3);
+%translate([-(4*body_length/10),-(body_width/2-body_wall_tichn/2+axle_len*2),-(3*body_h/8)]) rotate([90]) wheel(25,3);
 
 
 
