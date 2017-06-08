@@ -1,10 +1,10 @@
 /*------------------------------
 	Robot header
-	
+
 	Header Containing:
 		Defines,
 		Macros
-	
+
 	Created By: Lucas Martins Mendes
 	Date: 18/02/2017 12:45
 
@@ -22,11 +22,11 @@
 //Control Defines, comment these for removing/altering specific parts of the program related to it
 
 //DO NOT DEFINE BOTH OF THOSE, ALWAYS KEEP ONLY ONE ACTIVE
-#define 	HBRIDGE 1
-//#define NO_HBRIDGE 1
+//#define 	HBRIDGE 1
+#define NO_HBRIDGE 1
 
-#define 	RGB_LED			
-#define 	GYRO
+//#define 	RGB_LED
+//#define 	GYRO
 
 
 //Pins and Serial
@@ -55,9 +55,10 @@
 //Sensors
 
 //Light/color sensors
-#define 	SNSR_LGT_CTR  	8 
+#define 	SNSR_LGT_CTR  	8
 #define 	SNSR_LGT_LFT	6
 #define 	SNSR_LGT_RGT	4
+#define   SNSR_FRN
 
 //Serial
 #define 	SERIAL_SPEED	9600	//9600 baud/s

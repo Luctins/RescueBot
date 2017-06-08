@@ -1,6 +1,6 @@
 /*------------------------------
 	Main Robot Control
-	
+
 	For: Arduino UNO
 
 	Created By: Lucas Martins Mendes
@@ -30,7 +30,7 @@ class Robot {
 			debug(F("Setting Up Pins and Serial"));
 
 			Serial.begin(SERIAL_SPEED);
-			
+
 			//Pin setup
 			pinMode(ENG_RGT_1, OUTPUT);
 			pinMode(ENG_RGT_2, OUTPUT);
@@ -48,7 +48,7 @@ class Robot {
 
 
 			setMode(MODE_IDLE);
-			
+
 			debug(F("done"));
 		}
 
@@ -75,14 +75,14 @@ class Robot {
 				setEngine(right, ENG_RGT_EN);
 			}
 			else if(mode == MODE_IDLE)
-			debug(F("tried to move idle"));
+				debug(F("tried to move idle"));
 		}
 		#endif
 
 		int readSensors() {
 			/*The color sensors return value is to be interpreted like so:
-			will be read like: 
-			the left one is zero, 
+			will be read like:
+			the left one is zero,
 			the middle one is 512 and,
 			the right one is 1204. */
 			int sensorValue;
