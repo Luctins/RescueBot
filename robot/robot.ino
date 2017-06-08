@@ -14,11 +14,6 @@
 //Project Defines
 #include "robot.h"
 
-
-//-----------------------------
-// Object declaration
-//-----------------------------
-
 class Robot {
 	public:
 		//Variable and pins setup
@@ -79,7 +74,7 @@ class Robot {
 		}
 		#endif
 
-		int readSensors() {
+		int readSensors(uint8_t sensorId, uint8_t sensorPin) {
 			/*The color sensors return value is to be interpreted like so:
 			will be read like:
 			the left one is zero,
@@ -134,13 +129,20 @@ class Robot {
 				digitalWrite(engine, value);
 			}
 			else {
-				digitalWrite(engine1, 0);
+				digitalWrite(engine, 0);
 			}
 
 		}
 		#endif
 
 } robot;
+
+
+//-----------------------------
+// Object declaration
+//-----------------------------
+
+
 
 //------------------------------
 // ---------- Setup -----------

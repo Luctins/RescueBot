@@ -53,12 +53,15 @@
 #endif
 
 //Sensors
+#define 	LGT_SENSOR		1
+#define 	DST_SENSOR		2
+
 
 //Light/color sensors
 #define 	SNSR_LGT_CTR  	8
 #define 	SNSR_LGT_LFT	6
 #define 	SNSR_LGT_RGT	4
-#define   SNSR_FRN
+#define   	SNSR_LGT_FRN
 
 //Serial
 #define 	SERIAL_SPEED	9600	//9600 baud/s
