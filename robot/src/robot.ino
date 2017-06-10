@@ -21,6 +21,7 @@
 // Object declaration
 //-----------------------------
 
+//Classe Robô
 class Robot {
 	public:
 		//Variable and pins setup
@@ -68,8 +69,9 @@ class Robot {
 			else if(mode == MODE_IDLE)
 			debug(F("tried to move idle"));
 		}
+		#endif
 
-		#elif HBRIDGE_2
+		#ifdef HBRIDGE_2
 		void tankDrive (int left, int right) {
 			//Tank type steering
 			//negative values go backwards
@@ -100,7 +102,7 @@ class Robot {
 			debug(modeFlag);
 		}
 
-		//
+		//Debug messages go to the serial
 		template <typename Generic>
 		void debug(Generic text) {
 			Serial.println(text);
@@ -142,49 +144,70 @@ class Robot {
 		}
 		#endif
 
-} robot;
+};
 
 /*
-//Classe de controle
-class Controller {
-	public:
+//classe PID
+class PID {
+public:
 
-	//Basicamente uma função "init" da classe
-  Controller(int _kP, int _setpoint) {
+  int error;
+  int sample;
+  //int lastSample;
+  int kP, kI, kD;
+  int P, I, D;
+  int pid;
+
+  int setPoint;
+  //int lastProcess; //Time of last process
+
+  PID(int _kP, int _kI, int _kD, int setpoint){
     kP = _kP;
-		setPoint = _setpoint;
+    kI = _kI;
+    kD = _kD;
   }
 
-//Adiciona nova amostra
-  void addNewSample(double _sample){
+  void addNewSample(int _sample){
     sample = _sample;
   }
 
-  int compute() {
-    // Implementação PID
-    error = setPoint - sample; //Calcula erro
-    //float deltaTime = (millis() - lastProcess) / 1000.0; //computa delta de tempo
-    //lastProcess = millis();
-    P = error * kP;
-    return P;
+  void setSetPoint(int _setPoint){
+    setPoint = _setPoint;
   }
-	private:
-		int error;
-		int sample; //Amostra
-		int kP; //Ganho do controlador
-		float P; //valor de saída do controlador
 
-		int setPoint; //ponto objetivo
-		//long lastProcess;
-		//Quanto tempo passou
-		//desde a ultima vez que o sistema computou os valores
+  double process() {
+    error = setPoint - sample;
+    //float deltaTime = (millis() - lastProcess) / 1000.0;
+    //lastProcess = millis();
+
+    //P
+    P = error * kP;
+
+    //I
+    I = I + (error * kI) * deltaTime;
+
+    //D
+    D = (lastSample - sample) * kD / deltaTime;
+    lastSample = sample;
+
+    // Soma tudo
+    pid = P + I + D;
+
+    return pid;
+  }
 };
-
-Controller controller(CNTR_GAIN, CNTR_STPT);
 */
 
+//-----------------------------
+//-- Object declaration and global variables  -------
+
+//PID pid(1,0,0,0);
+static Robot robot;
+
+const int base_speed = 3*1024/4;
+
 //------------------------------
-// ---------- Setup -----------
+// ---------- Setup ------------
 
 void setup()
 {
@@ -200,11 +223,13 @@ void setup()
 
 void loop()
 {
+	//Global variables
 	//namespace robot;
 	int right;
 	int left;
 	int center;
 	int victim;
+	int setpoint = 0;
 
 	switch(robot.mode) {
 		case MODE_AUTO:
@@ -213,14 +238,9 @@ void loop()
 			right = robot.readSensors(LGT_SENSOR,SNSR_LGT_RGT);
  			left = robot.readSensors(LGT_SENSOR,SNSR_LGT_LFT);
  			center = robot.readSensors(LGT_SENSOR,SNSR_LGT_CTR);
-			//center /= 1.5;
-			robot.tankDrive(center+right,center+left); //depois explico exatamente como isso funciona
-			//             |
-			//             |
-			//             |
-			//             |
-			//------------------------------
-			//
+
+
+			robot.tankDrive(setpoint+center-right,setpoint+center-left);
 
 			victim = robot.readSensors(LGT_SENSOR,SNSR_LGT_FRNT);
 
