@@ -2,10 +2,15 @@
 	Robot header
 
 	Header Containing:
-		Defines,
-		Macros
+		pin defines,
+    id's,
+    and
+		macros.
 
-	Created By: Lucas Martins Mendes
+	Created By:
+    Lucas Martins Mendes,
+    Jaqueline Ribeiro
+
 	Date: 18/02/2017 12:45
 
 ------------------------------*/
@@ -15,49 +20,58 @@
 #ifndef ROBOT_H
 #define ROBOT_H
 
-//Defines---------------
+//-----------------------------------
+// ---------- Defines ---------------
+
+
+// ----------- ID's and other defines
 #define 	BOARD_MODEL 	"Arduino Uno"
 
-#define   STRT_BTN   13  //Start Button PIN
-
-//Serial
-#define 	SERIAL_SPEED	9600
-//#define   BT_SERIAL_SPEED 9600
-
-
+//Timeout values
+#define NOLINE_TIMEOUT 3000 //3s
+#define TURN_TIMEOUT 1000 //For the 𝛑 rad turn
 
 //Sensor ID's
 #define 	LGT_SENSOR		1
 #define 	DST_SENSOR		2
-
-//Light/color sensors
-#define 	SNSR_LGT_CTR 	8
-#define 	SNSR_LGT_LFT	6
-#define 	SNSR_LGT_RGT	4
-#define   SNSR_LGT_FRNT  4
 
 //Modes
 #define 	MODE_IDLE		0	  //Stand by, sensors disabled/not beiyng read
 #define 	MODE_AUTO		1  	//Autonomous
 //#define 	MODE_REMOTE		2	//Remote controlled by other application
 
-//Action ID's
-#define ACTION_IDLE 0
-#define ACTION_MOVE 1
-#define ACTION_ALERT 2
+//Color
+//TODO: measure and input the values below
+#define VICTIM_COLOR 0
+#define LINE_COLOR    0
 
-/* Control Defines,
- comment these for removing/altering
+//Control Defines
+ /*comment these for removing/altering
  specific parts of the program related to it */
-  
-//DO NOT DEFINE BOTH OF THOSE, ALWAYS KEEP ONLY ONE ACTIVE
+
 //#define 	HBRIDGE 1 //Minha ponte H bridge type
 #define HBRIDGE_2 1 //L293 bridge type
 
-//Peripherals
+//Other sensors
 //#define 	RGB_LED
 //#define 	GYRO
 
+//-----------------------------------------
+//-----------Pin's / Serial----------------
+#define   STRT_BTN_PIN   13  //Start Button PIN
+
+#define ALRM_PIN  12
+
+#define 	SERIAL_SPEED	9600
+//#define   BT_SERIAL_SPEED 9600
+
+//Light/color sensors
+#define 	LGT_SNSR_CTR 	0
+#define 	LGT_SNSR_LFT	1
+#define 	LGT_SNSR_RGT	2
+#define   LGT_SNSR_FRT 3 //Frontal Light sensor
+
+//H bridge set-up and verification
 #ifdef HBRIDGE_2
 #ifdef HBRIDGE
 #error "Do not define 2 Hbridge's at the same time"
@@ -69,8 +83,6 @@
 #error "Please define one Hbridge"
 #endif
 #endif
-
-//Pins
 
 //H bridge, 1 is forward, 2 is reverse
 #ifdef HBRIDGE_2

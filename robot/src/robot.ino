@@ -4,10 +4,9 @@
 	For: Arduino UNO
 
 	Created By:
-		Jaqueline Ribeiro,
 		Lucas Martins Mendes
 
-	Date: 18/02/2017 11:55
+	18/02/2017 11:55
 
 ------------------------------*/
 
@@ -34,15 +33,15 @@ class Robot {
 
 			Serial.begin(SERIAL_SPEED);
 
-			//Pin setup
-			pinMode(STRT_BTN, INPUT);
+			//Pin setup -----------------------
+			pinMode(STRT_BTN_PIN, INPUT);
+			pinMode(ALRM_PIN, OUTPUT);
 			pinMode(ENG_RGT_1, OUTPUT);
 			pinMode(ENG_RGT_2, OUTPUT);
 			pinMode(ENG_LFT_1, OUTPUT);
 			pinMode(ENG_LFT_2, OUTPUT);
 
-
-			//if using the protoboard H bridge
+			//if using the L293 IC bridge
 			#ifdef HBRIDGE_2
 			pinMode(ENG_RGT_EN, OUTPUT);
 			pinMode(ENG_LFT_EN, OUTPUT);
@@ -55,7 +54,6 @@ class Robot {
 
 			debug(F("done"));
 		}
-
 
 		#ifdef HBRIDGE
 		void tankDrive (int left, int right) {
@@ -85,14 +83,25 @@ class Robot {
 		#endif
 
 		int readSensors(uint8_t sensorId, uint8_t sensorPin) {
-			/*The color sensors return value is to be interpreted like so:
-			will be read like:
-			the left one is zero,
-			the middle one is 512 and,
-			the right one is 1204. */
-			int sensorValue = 0; //Placeholder
-			//TODO: read sensors here
+			int sensorValue;
 
+			switch(sensorId) {
+				case LGT_SENSOR:
+				 	sensorValue = analogRead(sensorPin);
+					debug(F("read Light sensor n°"));
+					debug(sensorPin);
+					debug(F("Value:"));
+					debug(sensorValue);
+				break;
+
+				case DST_SENSOR:
+					//TODO: read light sensor here
+				break;
+
+				default:
+					debug(F("Invalid sensor ID"));
+				break;
+			}
 			return sensorValue;
 		}
 
@@ -109,7 +118,14 @@ class Robot {
 		}
 
 		uint8_t mode;
-		uint16_t time;
+		uint16_t t0Turn;
+
+		//Flags
+		bool flagReadingSensors = 1; //is sensor data beying read or not?
+		bool flagIsTurning = 0; //for the 𝛑 rad turn
+		bool flagVictimFound = 0;
+		bool flagIsCouting = 0; //timeout countdown flag
+
 
 	private:
 
@@ -235,15 +251,30 @@ void loop()
 		case MODE_AUTO:
 			//controller.addNewSample(robot.computeSensorAvg());
 			//int compensation = controller.compute();
-			right = robot.readSensors(LGT_SENSOR,SNSR_LGT_RGT);
- 			left = robot.readSensors(LGT_SENSOR,SNSR_LGT_LFT);
- 			center = robot.readSensors(LGT_SENSOR,SNSR_LGT_CTR);
+			right = robot.readSensors(LGT_SENSOR,LGT_SNSR_RGT);
+ 			left = robot.readSensors(LGT_SENSOR,LGT_SNSR_LFT);
+ 			center = robot.readSensors(LGT_SENSOR,LGT_SNSR_CTR);
+			victim = robot.readSensors(LGT_SENSOR,LGT_SNSR_FRT);
 
+			//checks the frontal sensor for the victim
+			if(victim>=VICTIM_COLOR) {
+				robot.flagVictimFound = 1;
+				robot.setMode(MODE_IDLE);
+			}
 
+			if(right >= LINE_COLOR && left >= LINE_COLOR && center >= LINE_COLOR) {
+				robot.flagIsCouting = 1;
+				robot.t0Turn = millis();
+			}
+
+			if (robot.flagIsCouting && (millis() - robot.t0Turn >= NOLINE_TIMEOUT)) {
+				robot.flagIsTurning = 1;
+				robot.flagReadingSensors = 0;
+				robot.t0Turn = millis();
+			}
+
+			if(!robot.flagIsTurning)
 			robot.tankDrive(setpoint+center-right,setpoint+center-left);
-
-			victim = robot.readSensors(LGT_SENSOR,SNSR_LGT_FRNT);
-
 		break;
 
 		case MODE_IDLE :
@@ -252,9 +283,9 @@ void loop()
 				robot.debug(F("Waiting"));
 			}
 			*/
-			if(digitalRead(STRT_BTN) == 1) {
+			if(digitalRead(STRT_BTN_PIN) == 1) {
 				delay(50); //Button Debounce
-				while (digitalRead(STRT_BTN) == 1); //wait for button to be released
+				while (digitalRead(STRT_BTN_PIN) == 1); //wait for button to be released
 				robot.setMode(MODE_AUTO);
 				}
 		break;
@@ -263,6 +294,11 @@ void loop()
 			robot.debug(F("What?, How did you end up in here?"));
 		break;
 	}
+
+	if(robot.flagVictimFound == 1) {
+		digitalWrite(ALRM_PIN, 1);
+	}
+
 }
 /*----------
 	EOF
