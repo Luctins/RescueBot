@@ -31,6 +31,8 @@
 #define NOLINE_TIMEOUT 3000 //3s
 #define TURN_TIMEOUT 1000 //For the 𝛑 rad turn
 
+#define TURN_SPEED 200 //Speed when turning
+
 //Sensor ID's
 #define 	LGT_SENSOR		1
 #define 	DST_SENSOR		2
