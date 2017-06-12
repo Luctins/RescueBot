@@ -257,12 +257,9 @@ void loop()
 			victim = robot.readSensors(LGT_SENSOR,LGT_SNSR_FRT);
 
 			//checks the frontal sensor for the victim
-			if(victim>=VICTIM_COLOR) {
-				robot.flagVictimFound = 1;
-				robot.setMode(MODE_IDLE);
-			}
 
-			if(right >= LINE_COLOR && left >= LINE_COLOR && center >= LINE_COLOR) {
+
+			if(right >= LINE_COLOR && left >= LINE_COLOR && center >= LINE_COLOR && !robot.flagIsCouting) {
 				robot.flagIsCouting = 1;
 				robot.t0Turn = millis();
 			}
@@ -274,7 +271,16 @@ void loop()
 			}
 
 			if(!robot.flagIsTurning)
-			robot.tankDrive(setpoint+center-right,setpoint+center-left);
+				robot.tankDrive((setpoint+center-right)/4,(setpoint+center-left)/4);
+
+			else if (robot.flagIsTurning) {
+				robot.tankDrive(-TURN_SPEED,TURN_SPEED);
+			}
+			if(victim>=VICTIM_COLOR) {
+					robot.flagVictimFound = 1;
+					robot.setMode(MODE_IDLE);
+				}
+
 		break;
 
 		case MODE_IDLE :
