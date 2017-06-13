@@ -12,6 +12,8 @@
 
 //------------------------------
 // ---------- Includes ----------
+//Lib's
+#include <Ultrasonic.h>
 
 //Project Defines
 #include "robot.h"
@@ -19,10 +21,14 @@
 //-----------------------------
 // Object declaration
 //-----------------------------
+Ultrasonic ultrasonic(DST_SNSR_TRIG_PIN, DST_SNSR_ECHO_PIN);
 
 //Classe Robô
 class Robot {
 	public:
+
+
+
 		//Variable and pins setup
 		void init() {
 			//Sistem init
@@ -48,7 +54,10 @@ class Robot {
 			#endif
 
 			//Sensors
-			//TODO: Set up sensors here
+			//Distance Sensor
+			pinMode(DST_SNSR_ECHO_PIN, INPUT);
+			pinMode(DST_SNSR_TRIG_PIN, OUTPUT);
+			//Color Sensors
 
 			setMode(MODE_IDLE);
 
@@ -95,7 +104,11 @@ class Robot {
 				break;
 
 				case DST_SENSOR:
-					//TODO: read light sensor here
+					float distance;
+					distance = ultrasonic.convert(microsec, Ultrasonic::CM);
+					sensorValue = round(distance * 10 );
+					debug(F("Read Light Sensor, Value:"));
+					debug(distance);
 				break;
 
 				default:
@@ -104,6 +117,7 @@ class Robot {
 			}
 			return sensorValue;
 		}
+
 
 		void setMode(uint8_t modeFlag) {
 			mode = modeFlag;
@@ -125,6 +139,7 @@ class Robot {
 		bool flagIsTurning = 0; //for the 𝛑 rad turn
 		bool flagVictimFound = 0;
 		bool flagIsCouting = 0; //timeout countdown flag
+		bool flagObstacleFound = 0;
 
 
 	private:
@@ -246,15 +261,20 @@ void loop()
 	int center;
 	int victim;
 	int setpoint = 0;
+	int distance;
 
 	switch(robot.mode) {
 		case MODE_AUTO:
 			//controller.addNewSample(robot.computeSensorAvg());
 			//int compensation = controller.compute();
-			right = robot.readSensors(LGT_SENSOR,LGT_SNSR_RGT);
- 			left = robot.readSensors(LGT_SENSOR,LGT_SNSR_LFT);
- 			center = robot.readSensors(LGT_SENSOR,LGT_SNSR_CTR);
-			victim = robot.readSensors(LGT_SENSOR,LGT_SNSR_FRT);
+			if (!robot.flagIsTurning) {
+				right = robot.readSensors(LGT_SENSOR,LGT_SNSR_RGT);
+ 				left = robot.readSensors(LGT_SENSOR,LGT_SNSR_LFT);
+ 				center = robot.readSensors(LGT_SENSOR,LGT_SNSR_CTR);
+				victim = robot.readSensors(LGT_SENSOR,LGT_SNSR_FRT);
+				distance = robot.readSensors(DST_SENSOR,0);
+			}
+			
 
 			//checks the frontal sensor for the victim
 
@@ -270,13 +290,28 @@ void loop()
 				robot.t0Turn = millis();
 			}
 
+			#ifdef  DST_SENSOR
+			if(distance <= MIN_DIST) {
+				robot.flagObstacleFound = 1;
+			}
+			#endif
+
 			if(!robot.flagIsTurning)
-				robot.tankDrive((setpoint+center-right)/4,(setpoint+center-left)/4);
+				robot.tankDrive((setpoint+center-right)/4,(-setpoint+center-left)/4);
 
 			else if (robot.flagIsTurning) {
 				robot.tankDrive(-TURN_SPEED,TURN_SPEED);
 			}
-			if(victim>=VICTIM_COLOR) {
+
+			if(robot.flagIsTurning && robot.flagObstacleFound) {
+				//TODO turn here, remember to put timeout
+			}
+
+			if (victim<=VICTIM_COLOR && 
+			#ifdef DST_SENSOR
+				robot.flagObstacleFound) 
+			#endif
+			{
 					robot.flagVictimFound = 1;
 					robot.setMode(MODE_IDLE);
 				}

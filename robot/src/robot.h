@@ -60,9 +60,16 @@
 
 //-----------------------------------------
 //-----------Pin's / Serial----------------
-#define   STRT_BTN_PIN   13  //Start Button PIN
+
+#define STRT_BTN_PIN   13  //Start Button PIN
 
 #define ALRM_PIN  12
+
+#ifdef DST_SENSOR
+#define DST_SNSR_TRIG_PIN 0
+#define DST_SNSR_ECHO_PIN	 0
+#define MIN_DIST  10 //In mm
+#endif
 
 #define 	SERIAL_SPEED	9600
 //#define   BT_SERIAL_SPEED 9600
