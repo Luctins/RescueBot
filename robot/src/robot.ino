@@ -105,6 +105,7 @@ class Robot {
 
 				case DST_SENSOR:
 					float distance;
+					long microsec = ultrasonic.timing();
 					distance = ultrasonic.convert(microsec, Ultrasonic::CM);
 					sensorValue = round(distance * 10 );
 					debug(F("Read Light Sensor, Value:"));
