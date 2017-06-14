@@ -108,7 +108,7 @@ class Robot {
 					//uint16_t microsec;
 					//microsec = ultrasonic.timing();
 					//distance = ultrasonic.convert(microsec, Ultrasonic::CM);
-					distance = ultrasonic.Ranging(1);
+					distance = ultrasonic.Ranging(CM);
 					sensorValue = round(distance * 10 );
 					debug(F("Read Light Sensor, Value:"));
 					debug(distance);
@@ -325,10 +325,11 @@ void loop()
 			}
 
 			//victim detection
-			if (victim<=VICTIM_COLOR &&
+			if (victim<=VICTIM_COLOR 
 			#ifdef DST_SENSOR
-				robot.flagObstacleFound)
+				 && robot.flagObstacleFound
 			#endif
+			)
 			{
 				robot.flagVictimFound = 1;
 				robot.setMode(MODE_IDLE);
