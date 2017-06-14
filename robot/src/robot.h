@@ -28,8 +28,12 @@
 #define 	BOARD_MODEL 	"Arduino Uno"
 
 //Timeout values
-#define NOLINE_TIMEOUT 3000 //3s
-#define TURN_TIMEOUT 1000 //For the 𝛑 rad turn
+#define NOLINE_TIMEOUT 3000 // 3s
+#define TURN_TIMEOUT 1000 //For the 𝛑 rad turn, 1s
+
+#define OBSTACLE_AVOID_TIMEOUT 2000
+
+#define DRIVE_ADJ  0 //compensation for the different engines
 
 #define TURN_SPEED 200 //Speed when turning
 
@@ -45,7 +49,8 @@
 //Color
 //TODO: measure and input the values below
 #define VICTIM_COLOR 0
-#define LINE_COLOR    0
+#define LINE_COLOR   0
+#define OBSTACLE_COLOR 0
 
 //Control Defines
  /*comment these for removing/altering

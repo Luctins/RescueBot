@@ -13,7 +13,8 @@
 //------------------------------
 // ---------- Includes ----------
 //Lib's
-#include <Ultrasonic.h>
+//#include "/home/luctins/repositorios/rescuebot/lib/Ultrasonic/Ultrasonic.h"
+#include "Ultrasonic.h"
 
 //Project Defines
 #include "robot.h"
@@ -26,8 +27,6 @@ Ultrasonic ultrasonic(DST_SNSR_TRIG_PIN, DST_SNSR_ECHO_PIN);
 //Classe Robô
 class Robot {
 	public:
-
-
 
 		//Variable and pins setup
 		void init() {
@@ -103,14 +102,18 @@ class Robot {
 					debug(sensorValue);
 				break;
 
+				#ifdef DST_SENSOR
 				case DST_SENSOR:
-					float distance;
-					long microsec = ultrasonic.timing();
-					distance = ultrasonic.convert(microsec, Ultrasonic::CM);
+					long distance;
+					//uint16_t microsec;
+					//microsec = ultrasonic.timing();
+					//distance = ultrasonic.convert(microsec, Ultrasonic::CM);
+					distance = ultrasonic.Ranging(1);
 					sensorValue = round(distance * 10 );
 					debug(F("Read Light Sensor, Value:"));
 					debug(distance);
 				break;
+				#endif
 
 				default:
 					debug(F("Invalid sensor ID"));
@@ -136,11 +139,11 @@ class Robot {
 		uint16_t t0Turn;
 
 		//Flags
-		bool flagReadingSensors = 1; //is sensor data beying read or not?
-		bool flagIsTurning = 0; //for the 𝛑 rad turn
-		bool flagVictimFound = 0;
-		bool flagIsCouting = 0; //timeout countdown flag
-		bool flagObstacleFound = 0;
+		bool	flagReadingSensors = 1; //is sensor data being read or not?
+		bool	flagIsTurning = 0; //for the 𝛑 rad turn
+		bool	flagVictimFound = 0;
+		bool	flagIsCouting = 0; //timeout countdown flag
+		bool	flagObstacleFound = 0;
 
 
 	private:
@@ -236,7 +239,7 @@ public:
 //PID pid(1,0,0,0);
 static Robot robot;
 
-const int base_speed = 3*1024/4;
+//const int base_speed = 3*1024/4;
 
 //------------------------------
 // ---------- Setup ------------
@@ -261,61 +264,75 @@ void loop()
 	int left;
 	int center;
 	int victim;
-	int setpoint = 0;
+	int setpoint = DRIVE_ADJ;
 	int distance;
+	int turnangle = 0;
 
 	switch(robot.mode) {
 		case MODE_AUTO:
-			//controller.addNewSample(robot.computeSensorAvg());
-			//int compensation = controller.compute();
-			if (!robot.flagIsTurning) {
+
+			//normal operation
+			if (robot.flagReadingSensors) {
 				right = robot.readSensors(LGT_SENSOR,LGT_SNSR_RGT);
  				left = robot.readSensors(LGT_SENSOR,LGT_SNSR_LFT);
  				center = robot.readSensors(LGT_SENSOR,LGT_SNSR_CTR);
-				victim = robot.readSensors(LGT_SENSOR,LGT_SNSR_FRT);
+				victim = robot.readSensors(LGT_SENSOR,LGT_SNSR_FRT); //checks the frontal sensor for the victim
 				distance = robot.readSensors(DST_SENSOR,0);
 			}
-			
 
-			//checks the frontal sensor for the victim
-
-
+			//Noline detection
 			if(right >= LINE_COLOR && left >= LINE_COLOR && center >= LINE_COLOR && !robot.flagIsCouting) {
 				robot.flagIsCouting = 1;
 				robot.t0Turn = millis();
 			}
 
+			//timeout for the noline countdown
 			if (robot.flagIsCouting && (millis() - robot.t0Turn >= NOLINE_TIMEOUT)) {
 				robot.flagIsTurning = 1;
+				robot.flagIsCouting = 0;
 				robot.flagReadingSensors = 0;
 				robot.t0Turn = millis();
 			}
 
 			#ifdef  DST_SENSOR
+			//distance sensor trigged
 			if(distance <= MIN_DIST) {
 				robot.flagObstacleFound = 1;
+				robot.flagReadingSensors = 0;
+				robot.t0Turn = millis();
 			}
 			#endif
 
+			//normal operation
 			if(!robot.flagIsTurning)
 				robot.tankDrive((setpoint+center-right)/4,(-setpoint+center-left)/4);
 
+			//for the 𝛑 rad turn
 			else if (robot.flagIsTurning) {
 				robot.tankDrive(-TURN_SPEED,TURN_SPEED);
 			}
 
-			if(robot.flagIsTurning && robot.flagObstacleFound) {
-				//TODO turn here, remember to put timeout
+			//Obstacle avoid
+			if(robot.flagObstacleFound) {
+				robot.tankDrive(TURN_SPEED*sin(turnangle), -TURN_SPEED*sin(turnangle));
+				turnangle = (millis() - robot.t0Turn)* M_PI/OBSTACLE_AVOID_TIMEOUT;
 			}
 
-			if (victim<=VICTIM_COLOR && 
+			//obstacle avoid timeout
+			if(robot.flagObstacleFound && ((millis() - robot.t0Turn) > OBSTACLE_AVOID_TIMEOUT) ) {
+					robot.flagObstacleFound = 0;
+					robot.flagReadingSensors = 0;
+			}
+
+			//victim detection
+			if (victim<=VICTIM_COLOR &&
 			#ifdef DST_SENSOR
-				robot.flagObstacleFound) 
+				robot.flagObstacleFound)
 			#endif
 			{
-					robot.flagVictimFound = 1;
-					robot.setMode(MODE_IDLE);
-				}
+				robot.flagVictimFound = 1;
+				robot.setMode(MODE_IDLE);
+			}
 
 		break;
 
@@ -337,6 +354,7 @@ void loop()
 		break;
 	}
 
+	//Avisa os sacos de carne
 	if(robot.flagVictimFound == 1) {
 		digitalWrite(ALRM_PIN, 1);
 	}
