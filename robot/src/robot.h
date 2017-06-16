@@ -73,14 +73,14 @@
 //-----------------------------------------
 //-----------Pin's / Serial----------------
 
-#define STRT_BTN_PIN   13  //Start Button PIN
+#define STRT_BTN_PIN   12  //Start Button PIN
 
-#define ALRM_PIN  12
+#define ALRM_PIN  13
 
 #ifdef DST_SENSOR
-#define DST_SNSR_TRIG_PIN 0
-#define DST_SNSR_ECHO_PIN	 0
-#define MIN_DIST  10 //In mm
+#define DST_SNSR_TRIG_PIN 10
+#define DST_SNSR_ECHO_PIN	 11
+#define MIN_DIST  50//In mm
 #endif
 
 #define 	SERIAL_SPEED	9600
@@ -90,7 +90,7 @@
 #define 	LGT_SNSR_CTR 	0
 #define 	LGT_SNSR_LFT	1
 #define 	LGT_SNSR_RGT	2
-#define   LGT_SNSR_FRT 3 //Frontal Light sensor
+#define   LGT_SNSR_FRT  3 //Frontal Light sensor
 
 //H bridge set-up and verification
 #ifdef HBRIDGE_2
@@ -106,15 +106,16 @@
 #endif
 
 //H bridge, 1 is forward, 2 is reverse
+//L298 type bridge
 #ifdef HBRIDGE_2
 
-#define 	ENG_RGT_1		1
-#define 	ENG_RGT_2		2
-#define 	ENG_RGT_EN	3
+#define 	ENG_RGT_1 	2 //1 A
+#define 	ENG_RGT_2	  4 //2 A
+#define 	ENG_RGT_EN	5 //1,2 EN
 
-#define 	ENG_LFT_1		4
-#define 	ENG_LFT_2		5
-#define 	ENG_LFT_EN	6
+#define 	ENG_LFT_1	  7 //3 A
+#define 	ENG_LFT_2	  8 //4 A
+#define 	ENG_LFT_EN	6 //3,4 EN
 
 #endif
 
