@@ -75,7 +75,12 @@
 
 #define STRT_BTN_PIN   12  //Start Button PIN
 
+#ifndef RGB_LED
 #define ALRM_PIN  13
+#else
+#define ALRM_PIN 1
+#endif
+
 
 #ifdef DST_SENSOR
 #define DST_SNSR_TRIG_PIN 10
@@ -131,7 +136,7 @@
 
 //Led RGB
 #ifdef 		RGB_LED
-#define 	RGB_LED_PIN
+#define 	RGB_LED_PIN 13
 #endif
 
 //GYRO

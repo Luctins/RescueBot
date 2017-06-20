@@ -16,6 +16,8 @@
 //#include "/home/luctins/repositorios/rescuebot/lib/Ultrasonic/Ultrasonic.h"
 #include "Ultrasonic.h"
 
+#include "Adafruit_NeoPixel.h"
+
 //Project Defines
 #include "robot.h"
 
@@ -23,6 +25,7 @@
 // Object declaration
 //-----------------------------
 Ultrasonic ultrasonic(DST_SNSR_TRIG_PIN, DST_SNSR_ECHO_PIN);
+
 
 //Classe Robô
 class Robot {
