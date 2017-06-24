@@ -179,23 +179,23 @@ class Robot {
 			if(value >= 0) {
 				analogWrite(engine, value);
 				if(engine == ENG_LFT_EN) {
-					digitalWrite(ENG_LFT_1, 0);
-					digitalWrite(ENG_LFT_2, 1);
-				}
-				if(engine == ENG_RGT_EN) {
-					digitalWrite(ENG_RGT_1, 0);
-					digitalWrite(ENG_RGT_2, 1);
-				}
-			}
-			else {
-				analogWrite(engine, -value);
-				if(engine == ENG_LFT_EN) {
 					digitalWrite(ENG_LFT_1, 1);
 					digitalWrite(ENG_LFT_2, 0);
 				}
 				if(engine == ENG_RGT_EN) {
 					digitalWrite(ENG_RGT_1, 1);
 					digitalWrite(ENG_RGT_2, 0);
+				}
+			}
+			else {
+				analogWrite(engine, -value);
+				if(engine == ENG_LFT_EN) {
+					digitalWrite(ENG_LFT_1, 0);
+					digitalWrite(ENG_LFT_2, 1);
+				}
+				if(engine == ENG_RGT_EN) {
+					digitalWrite(ENG_RGT_1, 0);
+					digitalWrite(ENG_RGT_2, 1);
 				}
 			}
 
@@ -226,14 +226,14 @@ void setup()
 void loop()
 {
 	//Global variables
-	//namespace robot;
+	namespace robot;
 	int right;
 	int left;
 	int center;
 	int front;
 	int setpoint = DRIVE_ADJ;
 	int distance;
-	//int turnangle = 0;
+	int turnangle = 0;
 
 	switch(robot.mode) {
 		case MODE_AUTO:
@@ -281,7 +281,7 @@ void loop()
 
 			//normal operation
 			if(!robot.flagIsTurning)
-				robot.tankDrive(DRIVE_SPD -(-setpoint-left)/8, DRIVE_SPD - (setpoint-right)/8);
+				robot.tankDrive(DRIVE_SPD - (-setpoint+center-left)/12, DRIVE_SPD - (setpoint+center-right)/12);
 
 			//for the 𝛑 rad turn
 			else if (robot.flagIsTurning) {
@@ -313,15 +313,11 @@ void loop()
 			if(digitalRead(STRT_BTN_PIN) == 1) {
 				delay(3000); //start delay
 				//while (digitalRead(STRT_BTN_PIN) == 1); //wait for button to be released
-				pinMode(ALRM_PIN, 0);
 				robot.setMode(MODE_AUTO);
 			}
 			#else
 				robot.setMode(MODE_AUTO);
 			#endif
-
-
-			robot.tankDrive(0,0);
 		break;
 
 		default:

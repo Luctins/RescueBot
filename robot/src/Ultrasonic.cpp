@@ -18,7 +18,7 @@ Ultrasonic::Ultrasonic(int TP, int EP)
    pinMode(EP,INPUT);
    Trig_pin=TP;
    Echo_pin=EP;
-   Time_out=3000;  // 3000 µs = 50cm // 30000 µs = 5 m 
+   Time_out=6000;  // 3000 µs = 50cm // 30000 µs = 5 m 
 }
 
 Ultrasonic::Ultrasonic(int TP, int EP, long TO)

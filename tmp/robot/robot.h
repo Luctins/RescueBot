@@ -35,7 +35,7 @@
 
 //compensation constant
 #define DRIVE_ADJ  0 //compensation for the different engines
-#define DRIVE_SPD   128 //regular drive speed
+#define DRIVE_SPD  200 //regular drive speed
 
 #define TURN_SPEED 200 //Speed when turning
 
@@ -46,7 +46,7 @@
 
 //----------Color
 //TODO: measure and input the values below
-#define VICTIM_COLOR 1024
+#define VICTIM_COLOR 0
 #define LINE_COLOR   0
 //#define OBSTACLE_COLOR 0
 
