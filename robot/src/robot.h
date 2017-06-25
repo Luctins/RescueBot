@@ -7,7 +7,7 @@
     and
 		macros.
 
-	Created By:
+	Created and developed By:
     Lucas Martins Mendes,
     Jaqueline Ribeiro
 
@@ -29,14 +29,16 @@
 // ----------- ID's and other defines
 
 //Timeout values
-#define NOLINE_TIMEOUT 3000 // 3s
-#define TURN_TIMEOUT 1000 //For the 𝛑 rad turn, 1s
-#define OBSTACLE_AVOID_TIMEOUT 2000 //For the turn around the obstacle
+#define READ_WAIT 5 //in msec, for noise reduction on the ADC
+
+#define NOLINE_TIMEOUT 5000 // 3s
+#define TURN_TIMEOUT 4000 //For the 𝛑 rad turn
+#define OBSTACLE_AVOID_TIMEOUT 5000 //For the turn around the obstacle
 
 //compensation constant
 #define DRIVE_ADJ  0 //compensation for the different engines
-
-#define TURN_SPEED 200 //Speed when turning
+#define DRIVE_SPD  127 //regular speed
+#define TURN_SPEED 150 //Speed when turning
 
 //----------Modes
 #define 	MODE_IDLE		0	  //Stand by, sensors disabled/not beiyng read
@@ -44,10 +46,8 @@
 //#define 	MODE_REMOTE		2	//Remote controlled by other application
 
 //----------Color
-//TODO: measure and input the values below
-#define VICTIM_COLOR 0
-#define LINE_COLOR   0
-#define OBSTACLE_COLOR 0
+#define VICTIM_COLOR 1024
+#define LINE_COLOR   512
 
 //------------------------
 //--- Code Control Defines
@@ -59,7 +59,7 @@
 //----------- Sensors
 //These are also the sensor's id's
 #define 	LGT_SENSOR 1
-#define 	DST_SENSOR 2
+//#define 	DST_SENSOR 2
 
 //---------- Peripherals
 //#define 	RGB_LED 3
@@ -85,15 +85,15 @@
 #ifdef DST_SENSOR
 #define DST_SNSR_TRIG_PIN 10
 #define DST_SNSR_ECHO_PIN	 11
-#define MIN_DIST  50//In mm
+#define MIN_DIST  15 //In cm
 #endif
 
 #define 	SERIAL_SPEED	9600
 //#define   BT_SERIAL_SPEED 9600
 
 //Light/color sensors
-#define 	LGT_SNSR_CTR 	0
-#define 	LGT_SNSR_LFT	1
+#define 	LGT_SNSR_CTR 	1
+#define 	LGT_SNSR_LFT	0
 #define 	LGT_SNSR_RGT	2
 #define   LGT_SNSR_FRT  3 //Frontal Light sensor
 

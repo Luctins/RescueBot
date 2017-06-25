@@ -3,20 +3,17 @@
 
 	For: Arduino UNO
 
-	Created By:
-		Lucas Martins Mendes
+	Created and  developed by:
+		Lucas Martins Mendes,
+		Jaqueline Ribeiro
 
 	18/02/2017 11:55
-
 ------------------------------*/
 
 //------------------------------
 // ---------- Includes ----------
 //Lib's
-//#include "/home/luctins/repositorios/rescuebot/lib/Ultrasonic/Ultrasonic.h"
 #include "Ultrasonic.h"
-
-#include "Adafruit_NeoPixel.h"
 
 //Project Defines
 #include "robot.h"
@@ -24,8 +21,9 @@
 //-----------------------------
 // Object declaration
 //-----------------------------
+#ifdef DST_SENSOR
 Ultrasonic ultrasonic(DST_SNSR_TRIG_PIN, DST_SNSR_ECHO_PIN);
-
+#endif
 
 //Classe Robô
 class Robot {
@@ -58,15 +56,15 @@ class Robot {
 			#endif
 
 			//Sensors
-			#ifndef DEBUG_BOARDONLY
-			#ifdef LGT_SENSOR
+			#ifdef DST_SENSOR
 			pinMode(DST_SNSR_ECHO_PIN, INPUT);
 			pinMode(DST_SNSR_TRIG_PIN, OUTPUT);
-			#endif
 			#endif
 
 			#ifndef DEBUG_NO_STARTBUTTON
 			setMode(MODE_IDLE);
+			#else
+			setMode(MODE_AUTO);
 			#endif
 
 			debug(F("init done"));
@@ -120,7 +118,7 @@ class Robot {
 					//microsec = ultrasonic.timing();
 					//distance = ultrasonic.convert(microsec, Ultrasonic::CM);
 					distance = ultrasonic.Ranging(CM);
-					sensorValue = round(distance * 10 );
+					sensorValue = round(distance);
 					debug(F("Read Light Sensor, Value:"));
 					debug(distance);
 				break;
@@ -146,6 +144,10 @@ class Robot {
 			Serial.println(text);
 		}
 
+		void notify(uint8_t state) {
+			digitalWrite(ALRM_PIN, state);
+		}
+
 		uint8_t mode;
 		uint16_t t0Turn;
 
@@ -153,7 +155,7 @@ class Robot {
 		bool	flagReadingSensors = 1; //is sensor data being read or not?
 		bool	flagIsTurning = 0; //for the 𝛑 rad turn
 		bool	flagVictimFound = 0;
-		bool	flagIsCouting = 0; //timeout countdown flag
+		bool	flagIsCounting = 0; //timeout countdown flag
 		bool	flagObstacleFound = 0;
 
 
@@ -180,7 +182,7 @@ class Robot {
 		#ifdef HBRIDGE_2
 		void setEngine(int value, uint8_t engine) {
 			if(value >= 0) {
-				analogWrite(engine, -value);
+				analogWrite(engine, value);
 				if(engine == ENG_LFT_EN) {
 					digitalWrite(ENG_LFT_1, 0);
 					digitalWrite(ENG_LFT_2, 1);
@@ -193,12 +195,12 @@ class Robot {
 			else {
 				analogWrite(engine, -value);
 				if(engine == ENG_LFT_EN) {
-					digitalWrite(ENG_LFT_1, 0);
-					digitalWrite(ENG_LFT_2, 1);
+					digitalWrite(ENG_LFT_1, 1);
+					digitalWrite(ENG_LFT_2, 0);
 				}
 				if(engine == ENG_RGT_EN) {
-					digitalWrite(ENG_RGT_1, 0);
-					digitalWrite(ENG_RGT_2, 1);
+					digitalWrite(ENG_RGT_1, 1);
+					digitalWrite(ENG_RGT_2, 0);
 				}
 			}
 
@@ -229,14 +231,13 @@ void setup()
 void loop()
 {
 	//Global variables
-	//namespace robot;
 	int right;
 	int left;
 	int center;
 	int front;
 	int setpoint = DRIVE_ADJ;
 	int distance;
-	int turnangle = 0;
+	//int turnangle = 0;
 
 	switch(robot.mode) {
 		case MODE_AUTO:
@@ -244,59 +245,54 @@ void loop()
 			//normal operation
 			if (robot.flagReadingSensors) {
 				right = robot.readSensors(LGT_SENSOR,LGT_SNSR_RGT);
+				delay(READ_WAIT);
  				left = robot.readSensors(LGT_SENSOR,LGT_SNSR_LFT);
- 				center = robot.readSensors(LGT_SENSOR,LGT_SNSR_CTR);
-				front = robot.readSensors(LGT_SENSOR,LGT_SNSR_FRT); //checks the frontal sensor for the front
+				delay(READ_WAIT);
+				center = robot.readSensors(LGT_SENSOR,LGT_SNSR_CTR);
+				delay(READ_WAIT);
+				front = robot.readSensors(LGT_SENSOR,LGT_SNSR_FRT);
+				#ifdef DST_SENSOR
 				distance = robot.readSensors(DST_SENSOR,0);
+				#endif
 			}
 
 			//Noline detection
-			if(right >= LINE_COLOR && left >= LINE_COLOR && center >= LINE_COLOR && !robot.flagIsCouting) {
-				robot.flagIsCouting = 1;
+			if(right >= LINE_COLOR && left >= LINE_COLOR && center >= LINE_COLOR && !robot.flagIsCounting) {
+				robot.flagIsCounting = 1;
 				robot.t0Turn = millis();
 			}
 
 			//timeout for the noline countdown
-			if (robot.flagIsCouting && (millis() - robot.t0Turn >= NOLINE_TIMEOUT)) {
+			if (robot.flagIsCounting && ((millis() - robot.t0Turn) >= NOLINE_TIMEOUT) ) {
 				robot.flagIsTurning = 1;
-				robot.flagIsCouting = 0;
+				robot.flagIsCounting = 0;
 				robot.flagReadingSensors = 0;
 				robot.t0Turn = millis();
 			}
 
 			#ifdef  DST_SENSOR
 			//distance sensor trigged
-			if (distance <= MIN_DIST && front >= VICTIM_COLOR) {
-				robot.flagObstacleFound = 1;
-				robot.flagReadingSensors = 0;
-				robot.flagVictimFound = 1;
-				robot.setMode(MODE_IDLE);
-			}
-			else if (distance <= MIN_DIST) {
+			if (distance <= MIN_DIST ) {
 				robot.flagObstacleFound = 1;
 				robot.flagReadingSensors = 0;
 				robot.t0Turn = millis();
 			}
 			#endif
 
-			#ifndef DST_SENSOR
 			#ifdef LGT_SENSOR
 			if (front >= VICTIM_COLOR) {
-				robot.flagObstacleFound = 1;
 				robot.flagReadingSensors = 0;
 				robot.flagVictimFound = 1;
 				robot.setMode(MODE_IDLE);
-			} /*else if (front >= OBSTACLE_COLOR) {
-				robot.flagObstacleFound = 1;
-				robot.flagReadingSensors = 0;
-				robot.t0Turn = millis();
-			}*/
-			#endif
+				robot.tankDrive(0,0);
+				robot.notify(1);
+			}
 			#endif
 
 			//normal operation
-			if(!robot.flagIsTurning)
-				robot.tankDrive((setpoint+center-right)/4,(-setpoint+center-left)/4);
+			if(!robot.flagIsTurning && !robot.flagObstacleFound)
+				robot.tankDrive(DRIVE_SPD - (left - (1024 - right))/8 - setpoint ,
+					 							DRIVE_SPD - (right +  (1024 - left))/8 - setpoint);
 
 			//for the 𝛑 rad turn
 			else if (robot.flagIsTurning) {
@@ -326,8 +322,7 @@ void loop()
 			*/
 			#ifndef DEBUG_NO_STARTBUTTON
 			if(digitalRead(STRT_BTN_PIN) == 1) {
-				delay(50); //Button Debounce
-				while (digitalRead(STRT_BTN_PIN) == 1); //wait for button to be released
+				delay(3000); //Start delay
 				robot.setMode(MODE_AUTO);
 			}
 			#else
@@ -339,12 +334,6 @@ void loop()
 			robot.debug(F("What?, How did you end up in here?"));
 		break;
 	}
-
-	//Avisa os sacos de carne
-	if(robot.flagVictimFound == 1) {
-		digitalWrite(ALRM_PIN, 1);
-	}
-
 }
 /*----------
 	EOF
