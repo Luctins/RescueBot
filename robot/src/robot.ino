@@ -148,6 +148,14 @@ class Robot {
 			digitalWrite(ALRM_PIN, state);
 		}
 
+		int setAdjValue() {
+			int adj;
+			adj = analogRead(ADJ_PIN);
+			return adj;
+			debug(F("adjust:"));
+			debug(adj);
+		}
+
 		uint8_t mode;
 		uint16_t t0Turn;
 
@@ -184,23 +192,23 @@ class Robot {
 			if(value >= 0) {
 				analogWrite(engine, value);
 				if(engine == ENG_LFT_EN) {
-					digitalWrite(ENG_LFT_1, 0);
-					digitalWrite(ENG_LFT_2, 1);
-				}
-				if(engine == ENG_RGT_EN) {
-					digitalWrite(ENG_RGT_1, 0);
-					digitalWrite(ENG_RGT_2, 1);
-				}
-			}
-			else {
-				analogWrite(engine, -value);
-				if(engine == ENG_LFT_EN) {
 					digitalWrite(ENG_LFT_1, 1);
 					digitalWrite(ENG_LFT_2, 0);
 				}
 				if(engine == ENG_RGT_EN) {
 					digitalWrite(ENG_RGT_1, 1);
 					digitalWrite(ENG_RGT_2, 0);
+				}
+			}
+			else {
+				analogWrite(engine, -value);
+				if(engine == ENG_LFT_EN) {
+					digitalWrite(ENG_LFT_1, 0);
+					digitalWrite(ENG_LFT_2, 1);
+				}
+				if(engine == ENG_RGT_EN) {
+					digitalWrite(ENG_RGT_1, 0);
+					digitalWrite(ENG_RGT_2, 1);
 				}
 			}
 
@@ -243,6 +251,9 @@ void loop()
 		case MODE_AUTO:
 
 			//normal operation
+
+			setpoint = robot.setAdjValue()/4 - 127;
+
 			if (robot.flagReadingSensors) {
 				right = robot.readSensors(LGT_SENSOR,LGT_SNSR_RGT);
 				delay(READ_WAIT);
@@ -256,6 +267,7 @@ void loop()
 				#endif
 			}
 
+			/*
 			//Noline detection
 			if(right >= LINE_COLOR && left >= LINE_COLOR && center >= LINE_COLOR && !robot.flagIsCounting) {
 				robot.flagIsCounting = 1;
@@ -263,12 +275,14 @@ void loop()
 			}
 
 			//timeout for the noline countdown
+
 			if (robot.flagIsCounting && ((millis() - robot.t0Turn) >= NOLINE_TIMEOUT) ) {
 				robot.flagIsTurning = 1;
 				robot.flagIsCounting = 0;
 				robot.flagReadingSensors = 0;
 				robot.t0Turn = millis();
 			}
+			*/
 
 			#ifdef  DST_SENSOR
 			//distance sensor trigged
@@ -290,9 +304,10 @@ void loop()
 			#endif
 
 			//normal operation
-			if(!robot.flagIsTurning && !robot.flagObstacleFound)
-				robot.tankDrive(DRIVE_SPD - (left - (1024 - right))/8 - setpoint ,
-					 							DRIVE_SPD - (right +  (1024 - left))/8 - setpoint);
+			if(robot.flagReadingSensors) {
+				robot.tankDrive(DRIVE_SPD - (left - (1024 - right))/8 - setpoint,
+					 							DRIVE_SPD - (right +  (1024 - left))/8 + setpoint);
+			}
 
 			//for the 𝛑 rad turn
 			else if (robot.flagIsTurning) {
@@ -300,7 +315,7 @@ void loop()
 			}
 
 			//Obstacle avoid
-			if(robot.flagObstacleFound) {
+			else if(robot.flagObstacleFound) {
 				//TODO: this method
 				//robot.tankDrive(TURN_SPEED*sin(turnangle), -TURN_SPEED*sin(turnangle));
 				//turnangle = (millis() - robot.t0Turn)* M_PI/OBSTACLE_AVOID_TIMEOUT;

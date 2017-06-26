@@ -1,6 +1,6 @@
 //test file
-#define 	ENG_RGT_1 	2
-#define 	ENG_RGT_2	4	
+#define 	ENG_RGT_1 	4
+#define 	ENG_RGT_2	2	
 #define 	ENG_RGT_EN	5
 
 #define 	ENG_LFT_1	7
@@ -26,13 +26,13 @@ analogWrite(ENG_RGT_EN, 255);
 digitalWrite(ENG_LFT_1, 1);
 digitalWrite(ENG_LFT_2, 0);
 analogWrite(ENG_LFT_EN,255);
-delay(2000);
+delay(5000);
 digitalWrite(ENG_RGT_1, 1);
 digitalWrite(ENG_RGT_2, 0);
 analogWrite(ENG_RGT_EN, 0);
 digitalWrite(ENG_LFT_1, 1);
 digitalWrite(ENG_LFT_2, 0);
 analogWrite(ENG_LFT_EN, 255);
-delay(1000);
+delay(3000);
 
 }

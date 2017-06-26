@@ -37,7 +37,7 @@
 
 //compensation constant
 #define DRIVE_ADJ  0 //compensation for the different engines
-#define DRIVE_SPD  127 //regular speed
+#define DRIVE_SPD  180 //regular speed
 #define TURN_SPEED 150 //Speed when turning
 
 //----------Modes
@@ -46,8 +46,9 @@
 //#define 	MODE_REMOTE		2	//Remote controlled by other application
 
 //----------Color
+//TODO: SET LINE_COLOR
 #define VICTIM_COLOR 1024
-#define LINE_COLOR   512
+#define LINE_COLOR   0
 
 //------------------------
 //--- Code Control Defines
@@ -73,7 +74,9 @@
 //-----------------------------------------
 //-----------Pin's / Serial----------------
 
-#define STRT_BTN_PIN   12  //Start Button PIN
+#define STRT_BTN_PIN   12  //Start Button pin
+
+#define ADJ_PIN 4 //analog read 4
 
 #ifndef RGB_LED
 #define ALRM_PIN  13
@@ -114,8 +117,8 @@
 //L298 type bridge
 #ifdef HBRIDGE_2
 
-#define 	ENG_RGT_1 	2 //1 A
-#define 	ENG_RGT_2	  4 //2 A
+#define 	ENG_RGT_1 	4 //1 A
+#define 	ENG_RGT_2	  2 //2 A
 #define 	ENG_RGT_EN	5 //1,2 EN
 
 #define 	ENG_LFT_1	  7 //3 A
