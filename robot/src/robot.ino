@@ -4,7 +4,12 @@
 	For: Arduino UNO
 
 	Created By:
+		Henrique Ternes Moresco
+		Jaqueline de Souza Ribeiro
 		Lucas Martins Mendes
+		Maria Aparecida Muniz
+		Mateus Reibintz Willemann
+
 
 	18/02/2017 11:55
 
@@ -118,7 +123,7 @@ class Robot {
 					//distance = ultrasonic.convert(microsec, Ultrasonic::CM);
 					distance = ultrasonic.Ranging(CM);
 					sensorValue = round(distance);
-					debug(F("Read Light Sensor, Value:"));
+					debug(F("Read distance Sensor, Value:"));
 					debug(distance);
 				break;
 				#endif
@@ -141,6 +146,16 @@ class Robot {
 		template <typename Generic>
 		void debug(Generic text) {
 			Serial.println(text);
+		}
+
+		void notify(uint8_t state) {
+			digitalWrite(ALRM_PIN, state);
+		}
+
+		int readAdjustValue() {
+			int value;
+			value = analogRead(ADJ_PIN);
+			return value;
 		}
 
 		uint8_t mode;
@@ -179,23 +194,23 @@ class Robot {
 			if(value >= 0) {
 				analogWrite(engine, value);
 				if(engine == ENG_LFT_EN) {
-					digitalWrite(ENG_LFT_1, 0);
-					digitalWrite(ENG_LFT_2, 1);
-				}
-				if(engine == ENG_RGT_EN) {
-					digitalWrite(ENG_RGT_1, 0);
-					digitalWrite(ENG_RGT_2, 1);
-				}
-			}
-			else {
-				analogWrite(engine, -value);
-				if(engine == ENG_LFT_EN) {
 					digitalWrite(ENG_LFT_1, 1);
 					digitalWrite(ENG_LFT_2, 0);
 				}
 				if(engine == ENG_RGT_EN) {
 					digitalWrite(ENG_RGT_1, 1);
 					digitalWrite(ENG_RGT_2, 0);
+				}
+			}
+			else {
+				analogWrite(engine, -value);
+				if(engine == ENG_LFT_EN) {
+					digitalWrite(ENG_LFT_1, 0);
+					digitalWrite(ENG_LFT_2, 1);
+				}
+				if(engine == ENG_RGT_EN) {
+					digitalWrite(ENG_RGT_1, 0);
+					digitalWrite(ENG_RGT_2, 1);
 				}
 			}
 
@@ -238,17 +253,22 @@ void loop()
 	switch(robot.mode) {
 		case MODE_AUTO:
 
+			setpoint = robot.readAdjustValue()/4;
 			//normal operation
 			if (robot.flagReadingSensors) {
+				delay(READ_WAIT);
 				right = robot.readSensors(LGT_SENSOR,LGT_SNSR_RGT);
+				delay(READ_WAIT);
  				left = robot.readSensors(LGT_SENSOR,LGT_SNSR_LFT);
+ 				delay(READ_WAIT);
  				center = robot.readSensors(LGT_SENSOR,LGT_SNSR_CTR);
-				front = robot.readSensors(LGT_SENSOR,LGT_SNSR_FRT); //checks the frontal sensor for the front
+ 				delay(READ_WAIT);
+				front = robot.readSensors(LGT_SENSOR,LGT_SNSR_FRT); 
 				distance = robot.readSensors(DST_SENSOR,0);
 			}
 
 			//Noline detection
-			if(right >= LINE_COLOR && left >= LINE_COLOR && center >= LINE_COLOR && !robot.flagIsCouting) {
+			if(right <= LINE_COLOR && left <= LINE_COLOR && center <= LINE_COLOR && !robot.flagIsCouting) {
 				robot.flagIsCouting = 1;
 				robot.t0Turn = millis();
 			}
@@ -266,41 +286,66 @@ void loop()
 			if (distance <= MIN_DIST) {
 				robot.flagObstacleFound = 1;
 				robot.flagReadingSensors = 0;
-				robot.flagVictimFound = 0;
+				robot.tankDrive(0,0);
 			}
 			#endif
 
 			#ifdef LGT_SENSOR
 			if (front >= VICTIM_COLOR) {
-				robot.flagObstacleFound = 1;
+				//robot.flagObstacleFound = 1;
 				robot.flagReadingSensors = 0;
 				robot.flagVictimFound = 1;
 				robot.setMode(MODE_IDLE);
+				robot.tankDrive(0,0);
 			}
 			#endif
 
 			//normal operation
-			if(!robot.flagIsTurning)
-				robot.tankDrive(DRIVE_SPD -(-setpoint-left)/8, DRIVE_SPD - (setpoint-right)/8);
+			if(robot.flagReadingSensors)
+				robot.tankDrive(setpoint - (right/5),
+								setpoint - (left/5));
 
 			//for the 𝛑 rad turn
 			else if (robot.flagIsTurning) {
 				robot.tankDrive(-TURN_SPEED,TURN_SPEED);
-			}
+			} 
 
 			//Obstacle avoid
 			if(robot.flagObstacleFound) {
 				//TODO: this method
+				robot.tankDrive(0,0);
+				delay(2000);
+				robot.tankDrive(150,-150);
+				delay(1000);
+				robot.tankDrive(150,150);
+				delay(1000);
+				robot.tankDrive(-150,150);
+				delay(1000);
+				robot.tankDrive(150,150);
+				delay(2000);
+				robot.tankDrive(-150,150);
+				delay(1000);
+				robot.tankDrive(150,150);
+				delay(1000);
+				robot.tankDrive(150,-150);
+				delay(1000);
+				robot.tankDrive(0,0);
+
+				
+				//robot.tankDrive();
 				//robot.tankDrive(TURN_SPEED*sin(turnangle), -TURN_SPEED*sin(turnangle));
 				//turnangle = (millis() - robot.t0Turn)* M_PI/OBSTACLE_AVOID_TIMEOUT;
 			}
-
-			//obstacle avoid timeout
+	//obstacle avoid timeout
 			if(robot.flagObstacleFound && ((millis() - robot.t0Turn) > OBSTACLE_AVOID_TIMEOUT) ) {
 					robot.flagObstacleFound = 0;
 					robot.flagReadingSensors = 1;
 			}
-
+			
+			if(robot.flagIsTurning && ((millis() -robot.t0Turn) > TURN_TIMEOUT) ) {
+				robot.flagReadingSensors = 1;
+				robot.flagIsTurning = 0;
+			}
 		break;
 
 		case MODE_IDLE :
