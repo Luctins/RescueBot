@@ -7,9 +7,11 @@
     and
 		macros.
 
-	Created and developed By:
-    Lucas Martins Mendes,
-    Jaqueline Ribeiro
+    Created and developed By:
+      Henrique Ternes Moresco,
+      Jaqueline Ribeiro,
+      Lucas Martins Mendes,
+      Maria de Aparecida Muniz
 
 	Date: 18/02/2017 12:45
 

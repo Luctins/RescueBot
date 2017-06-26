@@ -3,9 +3,11 @@
 
 	For: Arduino UNO
 
-	Created and  developed by:
-		Lucas Martins Mendes,
-		Jaqueline Ribeiro
+	Created and developed By:
+    Henrique Ternes Moresco,
+    Jaqueline Ribeiro,
+    Lucas Martins Mendes,
+    Maria de Aparecida Muniz
 
 	18/02/2017 11:55
 ------------------------------*/
