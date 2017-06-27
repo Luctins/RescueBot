@@ -93,7 +93,7 @@
 #define MIN_DIST  15 //In cm
 #endif
 
-#define 	SERIAL_SPEED	9600
+#define 	SERIAL_SPEED	115200
 //#define   BT_SERIAL_SPEED 9600
 
 //Light/color sensors
