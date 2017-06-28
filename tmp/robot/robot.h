@@ -30,11 +30,12 @@
 
 //Timeout values
 #define NOLINE_TIMEOUT 3000 // 3s
-#define TURN_TIMEOUT 1000 //For the 𝛑 rad turn, 1s
+#define TURN_TIMEOUT 5000 //For the 𝛑 rad turn, 1s
 #define OBSTACLE_AVOID_TIMEOUT 2000 //For the turn around the obstacle
 
 //compensation constant
 #define DRIVE_ADJ  0 //compensation for the different engines
+#define DRIVE_SPD  200 //regular drive speed
 
 #define TURN_SPEED 200 //Speed when turning
 
@@ -47,7 +48,7 @@
 //TODO: measure and input the values below
 #define VICTIM_COLOR 0
 #define LINE_COLOR   0
-#define OBSTACLE_COLOR 0
+//#define OBSTACLE_COLOR 0
 
 //------------------------
 //--- Code Control Defines
@@ -73,14 +74,14 @@
 //-----------------------------------------
 //-----------Pin's / Serial----------------
 
-#define STRT_BTN_PIN   13  //Start Button PIN
+#define STRT_BTN_PIN   12  //Start Button PIN
 
-#define ALRM_PIN  12
+#define ALRM_PIN  13
 
 #ifdef DST_SENSOR
-#define DST_SNSR_TRIG_PIN 0
-#define DST_SNSR_ECHO_PIN	 0
-#define MIN_DIST  10 //In mm
+#define DST_SNSR_TRIG_PIN   11
+#define DST_SNSR_ECHO_PIN	 10
+#define MIN_DIST  10 //In cm
 #endif
 
 #define 	SERIAL_SPEED	9600
@@ -90,7 +91,7 @@
 #define 	LGT_SNSR_CTR 	0
 #define 	LGT_SNSR_LFT	1
 #define 	LGT_SNSR_RGT	2
-#define   LGT_SNSR_FRT 3 //Frontal Light sensor
+#define     LGT_SNSR_FRT    3 //Frontal Light sensor
 
 //H bridge set-up and verification
 #ifdef HBRIDGE_2
@@ -108,12 +109,12 @@
 //H bridge, 1 is forward, 2 is reverse
 #ifdef HBRIDGE_2
 
-#define 	ENG_RGT_1		1
-#define 	ENG_RGT_2		2
-#define 	ENG_RGT_EN	3
+#define 	ENG_RGT_1   2
+#define 	ENG_RGT_2		4
+#define 	ENG_RGT_EN	    5
 
-#define 	ENG_LFT_1		4
-#define 	ENG_LFT_2		5
+#define 	ENG_LFT_1		7
+#define 	ENG_LFT_2		8
 #define 	ENG_LFT_EN	6
 
 #endif

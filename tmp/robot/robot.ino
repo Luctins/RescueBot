@@ -4,12 +4,7 @@
 	For: Arduino UNO
 
 	Created By:
-		Henrique Ternes Moresco
-		Jaqueline de Souza Ribeiro
 		Lucas Martins Mendes
-		Maria Aparecida Muniz
-		Mateus Reibintz Willemann
-
 
 	18/02/2017 11:55
 
@@ -60,17 +55,16 @@ class Robot {
 			#endif
 
 			//Sensors
+			#ifndef DEBUG_BOARDONLY
 			#ifdef LGT_SENSOR
 			pinMode(DST_SNSR_ECHO_PIN, INPUT);
 			pinMode(DST_SNSR_TRIG_PIN, OUTPUT);
 			#endif
+			#endif
 
 			#ifndef DEBUG_NO_STARTBUTTON
-
 			setMode(MODE_IDLE);
-			#else
-     setMode(MODE_AUTO);
-     #endif
+			#endif
 
 			debug(F("init done"));
 		}
@@ -124,7 +118,7 @@ class Robot {
 					//distance = ultrasonic.convert(microsec, Ultrasonic::CM);
 					distance = ultrasonic.Ranging(CM);
 					sensorValue = round(distance);
-					debug(F("Read distance Sensor, Value:"));
+					debug(F("Read Light Sensor, Value:"));
 					debug(distance);
 				break;
 				#endif
@@ -149,17 +143,6 @@ class Robot {
 			Serial.println(text);
 		}
 
-		void notify(uint8_t state) {
-			digitalWrite(ALRM_PIN, state);
-		}
-
-		//usado para ajustar o valor base do PWM no 1º carrinho
-		/*int readAdjustValue() {
-			int value;
-			value = analogRead(ADJ_PIN);
-			return value;
-		}*/
-
 		uint8_t mode;
 		uint16_t t0Turn;
 
@@ -167,7 +150,7 @@ class Robot {
 		bool	flagReadingSensors = 1; //is sensor data being read or not?
 		bool	flagIsTurning = 0; //for the 𝛑 rad turn
 		bool	flagVictimFound = 0;
-		bool	flagIsCouting = 0; // <any> timeout countdown flag
+		bool	flagIsCouting = 0; //timeout countdown flag
 		bool	flagObstacleFound = 0;
 
 
@@ -232,6 +215,9 @@ void setup()
 {
 	//Hardware init
 	robot.init();
+	#ifndef DEBUG_NO_STARTBUTTON
+	robot.setMode(MODE_IDLE);
+	#endif
 }
 
 
@@ -240,108 +226,79 @@ void setup()
 void loop()
 {
 	//Global variables
-
-	//For the 3 sensor layout
-	/*int right;
+	namespace robot;
+	int right;
 	int left;
 	int center;
 	int front;
 	int setpoint = DRIVE_ADJ;
-	//int turnangle = 0;*/
-
-  int right_r;
-  int right;
-  int left;
-  int left_l;
-  int distance;
+	int distance;
+	int turnangle = 0;
 
 	switch(robot.mode) {
 		case MODE_AUTO:
 
-			//setpoint = robot.readAdjustValue()/4;
 			//normal operation
 			if (robot.flagReadingSensors) {
-        delay(READ_WAIT);
-        right_r = robot.readSensors(LGT_SENSOR,LGT_SNSR_RGT_R);
-        delay(READ_WAIT);
-        right = robot.readSensors(LGT_SENSOR,LGT_SNSR_RGT);
-        delay(READ_WAIT);
-        left = robot.readSensors(LGT_SENSOR,LGT_SNSR_LFT);
-        delay(READ_WAIT);
-        left_l = robot.readSensors(LGT_SENSOR,LGT_SNSR_LFT_L);
-        //(READ_WAIT);
-				#ifdef DST_SENSOR
-       distance = robot.readSensors(DST_SENSOR,0);
-        #endif
+				right = robot.readSensors(LGT_SENSOR,LGT_SNSR_RGT);
+ 				left = robot.readSensors(LGT_SENSOR,LGT_SNSR_LFT);
+ 				center = robot.readSensors(LGT_SENSOR,LGT_SNSR_CTR);
+				front = robot.readSensors(LGT_SENSOR,LGT_SNSR_FRT); //checks the frontal sensor for the front
+				distance = robot.readSensors(DST_SENSOR,0);
+			}
 
+			//Noline detection
+			if(right >= LINE_COLOR && left >= LINE_COLOR && center >= LINE_COLOR && !robot.flagIsCouting) {
+				robot.flagIsCouting = 1;
+				robot.t0Turn = millis();
+			}
+
+			//timeout for the noline countdown
+			if (robot.flagIsCouting && (millis() - robot.t0Turn >= NOLINE_TIMEOUT)) {
+				robot.flagIsTurning = 1;
+				robot.flagIsCouting = 0;
+				robot.flagReadingSensors = 0;
+				robot.t0Turn = millis();
 			}
 
 			#ifdef  DST_SENSOR
 			//distance sensor trigged
-			if (distance < MIN_DIST) {
-        robot.tankDrive(0,0);
-        robot.notify(1);
-
+			if (distance <= MIN_DIST) {
 				robot.flagObstacleFound = 1;
 				robot.flagReadingSensors = 0;
-				//robot.tankDrive(0,0);
+				robot.flagVictimFound = 0;
 			}
 			#endif
 
-			//frontal sensor
-			/*#ifdef LGT_SENSOR_FRT
+			#ifdef LGT_SENSOR
 			if (front >= VICTIM_COLOR) {
-				//robot.flagObstacleFound = 1;
+				robot.flagObstacleFound = 1;
 				robot.flagReadingSensors = 0;
 				robot.flagVictimFound = 1;
 				robot.setMode(MODE_IDLE);
-				robot.tankDrive(0,0);
 			}
-			#endif*/
+			#endif
 
 			//normal operation
-			if(robot.flagReadingSensors) {
-         /*if (right > LINE_COLOR) {
-          robot.tankDrive(DRIVE_SPD, 0);
-        }
-        else if (left > LINE_COLOR) {
-          robot.tankDrive(0 ,DRIVE_SPD);
-        }
-        else*/ if (right_r > LINE_COLOR) {
-          robot.tankDrive(DRIVE_SPD, -DRIVE_SPD );
-        }
-        else if (left_l > LINE_COLOR) {
-          robot.tankDrive(-DRIVE_SPD ,DRIVE_SPD);
-        }
-        else { robot.tankDrive(DRIVE_SPD, DRIVE_SPD); }
-        delay(50);
+			if(!robot.flagIsTurning)
+				robot.tankDrive(DRIVE_SPD - (-setpoint+center-left)/12, DRIVE_SPD - (setpoint+center-right)/12);
 
-				    /*robot.tankDrive(DRIVE_SPD - (right/4 - left/3),
-								DRIVE_SPD - (left/4 - right/3));
-          */
-
-       }
+			//for the 𝛑 rad turn
+			else if (robot.flagIsTurning) {
+				robot.tankDrive(-TURN_SPEED,TURN_SPEED);
+			}
 
 			//Obstacle avoid
 			if(robot.flagObstacleFound) {
-        robot.tankDrive(0,0);
+				//TODO: this method
+				//robot.tankDrive(TURN_SPEED*sin(turnangle), -TURN_SPEED*sin(turnangle));
+				//turnangle = (millis() - robot.t0Turn)* M_PI/OBSTACLE_AVOID_TIMEOUT;
+			}
 
-				robot.tankDrive(0,0);
-				delay(2000);
-				robot.tankDrive(150,-150);
-				delay(1500);
-				robot.tankDrive(150,150);
-				delay(2500);
-				robot.tankDrive(-150,150);
-				delay(1500);
-				robot.tankDrive(150,150);
-				delay(5000);
-				robot.tankDrive(-150,150);
-				delay(1000);
-				robot.tankDrive(150,150);
-       robot.notify(0);
-       robot.flagReadingSensors = 1;
-       robot.flagObstacleFound = 0;
+			//obstacle avoid timeout
+			if(robot.flagObstacleFound && ((millis() - robot.t0Turn) > OBSTACLE_AVOID_TIMEOUT) ) {
+					robot.flagObstacleFound = 0;
+					robot.flagReadingSensors = 1;
 			}
 
 		break;
@@ -356,14 +313,11 @@ void loop()
 			if(digitalRead(STRT_BTN_PIN) == 1) {
 				delay(3000); //start delay
 				//while (digitalRead(STRT_BTN_PIN) == 1); //wait for button to be released
-				pinMode(ALRM_PIN, 0);
 				robot.setMode(MODE_AUTO);
 			}
 			#else
 				robot.setMode(MODE_AUTO);
 			#endif
-
-			robot.tankDrive(0,0);
 		break;
 
 		default:
