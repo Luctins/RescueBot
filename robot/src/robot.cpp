@@ -18,6 +18,7 @@
 //------------------------------
 // ---------- Includes ----------
 //Lib's
+#include "Arduino.h"
 //#include "/home/luctins/repositorios/rescuebot/lib/Ultrasonic/Ultrasonic.h"
 #include "Ultrasonic.h"
 
@@ -36,7 +37,8 @@ class Robot {
 		//Variable and pins setup
 		void init() {
 			//Sistem init
-			debug(BOARD_MODEL);
+			debug(F(BOARD_MODEL));
+			//F( 123);
 			debug(F("---------------------------\n Hello, I'm rescuebot. \nSetting Up Pins and Serial"));
 
 			Serial.begin(SERIAL_SPEED);
